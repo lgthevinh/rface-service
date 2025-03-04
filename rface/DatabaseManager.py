@@ -33,6 +33,6 @@ class DatabaseManager:
     rows = self.cursor.fetchall()
     return {row[1]: np.frombuffer(row[2], dtype=np.float32) for row in rows}
     
-  def delete_embedding(self, id: int):
-    self.cursor.execute("DELETE FROM faces WHERE id=?", (id,))
+  def delete_embedding(self, name: str):
+    self.cursor.execute("DELETE FROM faces WHERE name=?", (name,))
     self.conn.commit()

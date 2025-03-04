@@ -89,14 +89,14 @@ class RFace:
       print(f"Error: {e}")
       return None
       
-  def delete_face(self, id: int):
+  def delete_face(self, name: str):
     """
     Delete a face from the database.
     Parameters:
-      id: int - ID of the person.
+      name: str - Name of the person to be deleted.
     """
     try:
-      self.db.delete_embedding(id)
+      self.db.delete_embedding(name)
     except Exception as e:
       print(f"Error: {e}")
   
