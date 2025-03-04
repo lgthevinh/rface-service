@@ -20,7 +20,7 @@ if __name__ == "__main__":
   # print(type(output_1[0]))
   
   # Test: check if the embedding is extracted correctly from image array (np.ndarray)
-  img = cv2.imread("./assets/obama1.jpg")
+  img = cv2.imread("./assets/obama2.jpg")
   # output_2 = rface.face_reg.extract_embeddings(img)
   # print(output_2[0])
   
@@ -41,9 +41,12 @@ if __name__ == "__main__":
   # print(rface.face_reg.compare_embeddings(obama_embedding, output_1[0]["embedding"]))
   
   # Test: store embedding in the database (Test done)
-  # rface.register_face(img, "Barrack Obama")
+  rface.register_face(img, "Barrack Obama")
   
   # Test: recognize face from image array
   print(rface.recognize_face(img))
   print(rface.recognize_face(img_2))
+  
+  # Test: delete embedding from the database
+  rface.delete_face("Barrack Obama")
   
