@@ -17,8 +17,8 @@ class DatabaseManager:
       """
       CREATE TABLE IF NOT EXISTS faces(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        embedding BLOB
+        name TEXT UNIQUE NOT NULL,
+        embedding BLOB NOT NULL
       )
       """
     )
@@ -32,3 +32,7 @@ class DatabaseManager:
     self.cursor.execute("SELECT * FROM faces")
     rows = self.cursor.fetchall()
     return {row[1]: np.frombuffer(row[2], dtype=np.float32) for row in rows}
+    
+  def delete_embedding(self, id: int):
+    self.cursor.execute("DELETE FROM faces WHERE id=?", (id,))
+    self.conn.commit()
