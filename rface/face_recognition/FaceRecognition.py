@@ -27,7 +27,7 @@ class FaceRecognition:
   def extract_embeddings(self, img: np.ndarray | str) -> List[Dict[str, Any]]:
     return DeepFace.represent(img, model_name=self.model, enforce_detection=False)
   
-  def compare_embeddings(self, db_embedding, target_embedding) -> bool:
+  def compare_embeddings(self, db_embedding, target_embedding) -> Dict[str, Any]:
     # Compare embeddings using cosine similarity
     # If similarity is above a certain threshold, return True
     # Otherwise, return False
