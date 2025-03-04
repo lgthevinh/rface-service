@@ -5,3 +5,6 @@ assets/img_align_celea/
 
 # Ignore all zip files
 *.zip
+
+# Ignore all _pycache_ directories
+__pycache__/
