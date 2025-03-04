@@ -44,17 +44,22 @@ class RFace:
     Returns:
       np.ndarray: The embedding of the registered face.
     """
-    # Extract embedding from image/frame
-    data = self.face_reg.extract_embeddings(img_array)
+    try: 
+      # Extract embedding from image/frame
+      data = self.face_reg.extract_embeddings(img_array)
+      
+      # If no face is detected or embedding is empty, don't store it in the database
+      if not data[0]["embedding"]:
+        return None
+      
+      # Store embedding in database and return it
+      embedding = np.array(data[0]["embedding"], dtype=np.float32) 
+      self.db.store_embedding(name, embedding)
+      return embedding
     
-    # If no face is detected or embedding is empty, don't store it in the database
-    if not data[0]["embedding"]:
+    except Exception as e:
+      print(f"Error: {e}")
       return None
-    
-    # Store embedding in database and return it
-    embedding = np.array(data[0]["embedding"], dtype=np.float32) 
-    self.db.store_embedding(name, embedding)
-    return embedding
   
   def recognize_face(self, img_array: np.ndarray):
     """
@@ -64,11 +69,25 @@ class RFace:
     Returns:
       str: Name of the recognized person.
     """
-    # Extract embedding from image/frame
-    # Get all embeddings from database
-    # Compare embeddings
-    # Return result (publish to API)
-    pass
-  
+    try: 
+      # Extract embedding from image/frame
+      data = self.face_reg.extract_embeddings(img_array)
+      if not data[0]["embedding"]:
+        return None
+
+      # Get all embeddings from the database
+      db_embeddings = self.db.get_all_embedding()
+      
+      # Compare the extracted embedding with the embeddings in the database
+      for name, embedding in db_embeddings.items():
+        result = self.face_reg.compare_embeddings(data[0]["embedding"], embedding.tolist())
+        if result["verified"]:
+          return {"name": name, "distance": round(result["distance"], 10), "verified": result["verified"]}
+      return None
+    
+    except Exception as e:
+      print(f"Error: {e}")
+      return None
+    
   def __str__(self):
     return "RFace instance"
