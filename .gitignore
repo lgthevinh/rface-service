@@ -11,3 +11,6 @@ __pycache__/
 
 # Ignore db file for sqlite
 *.db
+
+# Ignore data directory
+data/
