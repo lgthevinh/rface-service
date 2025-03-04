@@ -1,8 +1,6 @@
 # Ignore the assets/img_align_celea directory
 assets/img_align_celea/
 
-# Ignore the assets/img_align_celeba_small directory
-
 # Ignore all zip files
 *.zip
 
