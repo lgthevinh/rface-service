@@ -8,3 +8,6 @@ assets/img_align_celea/
 
 # Ignore all _pycache_ directories
 __pycache__/
+
+# Ignore db file for sqlite
+*.db
