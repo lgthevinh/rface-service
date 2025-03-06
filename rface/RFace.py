@@ -1,6 +1,7 @@
 import os
 
 from rface.face_recognition.FaceRecognition import FaceRecognition
+from rface.result_publisher.app import ResultPublisher
 from rface.DatabaseManager import DatabaseManager
 import numpy as np
 
@@ -11,7 +12,7 @@ class RFace:
   def __new__(cls):
     if cls._instance is None:
       cls._instance = super(RFace, cls).__new__(cls)
-
+      cls.data_path = os.path.join(os.path.expanduser("~"), ".rface")
     return cls._instance
   
   def init(self):
@@ -34,6 +35,7 @@ class RFace:
     self.db._connect(os.path.join(self.data_path, "rface.db"))
     
     self.face_reg = FaceRecognition()
+    self.result_publisher = ResultPublisher()
   
   def register_face(self, img_array: np.ndarray, name: str):
     """
@@ -100,5 +102,14 @@ class RFace:
     except Exception as e:
       print(f"Error: {e}")
   
+  def run_result_publisher(self, host="0.0.0.0", port=5000, debug=False):
+    """
+    Run the ResultPublisher Flask app.
+    Parameters:
+      host: str - Host address to run the Flask app.
+      port: int - Port number to run the Flask app.
+    """
+    self.result_publisher.run(host, port, debug=debug)
+    
   def __str__(self):
     return "RFace instance"
