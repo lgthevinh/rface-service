@@ -32,6 +32,8 @@ The service has 3 main components:
 - Result publisher (Event publisher)
 And follow up are database and configuration.
 
+For more information, please refer to the development note in the assets folder or click [here](/assets/developement_note)
+
 ### Face recognition
 The face recognition component is built with deepface framework. However was modified to fit the project requirements (mainly converting input and output to numpy array).
 
