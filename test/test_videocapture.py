@@ -66,7 +66,7 @@ class IPCamera:
             return self.frame.copy() if self.frame is not None else None
 
 # Example 1: Using an MJPEG stream from a traffic camera
-camera = IPCamera('rtsp://admin:admin@192.168.1.188:554/stream1')
+camera = IPCamera('rtsp://admin:admin@192.168.1.29:554/stream1')
 
 
 # Example 2: If you have a local IP camera (uncomment and modify as needed)

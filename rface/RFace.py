@@ -75,6 +75,7 @@ class RFace:
       # Extract embedding from image/frame
       data = self.face_reg.extract_embeddings(img_array)
       if not data[0]["embedding"]:
+        print("No face detected")
         return None
 
       # Get all embeddings from the database
@@ -85,6 +86,8 @@ class RFace:
         result = self.face_reg.compare_embeddings(data[0]["embedding"], embedding.tolist())
         if result["verified"]:
           return {"name": name, "distance": round(result["distance"], 10), "verified": result["verified"]}
+        
+      print("No match found")
       return None
     
     except Exception as e:

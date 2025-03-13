@@ -16,7 +16,7 @@ app = rface.result_publisher.app
 
 @app.route("/ping", methods=["GET"])
 def ping():
-  return "Pong!"
+  return jsonify({"message": "Pong! RFace Service is here!"}), 200
 
 @app.route("/api/register_face", methods=["POST"])
 def register_face():
@@ -27,8 +27,16 @@ def register_face():
   if not name or not image_data:
     return jsonify({"error": "Name and image are required"}), 400
   
-  # Decode the base64 image
-  image_bytes = base64.b64decode(image_data.split(",")[1])
+  # Check if the image data contain metadata (data:image)
+  if "data:image" in image_data:
+    image_bytes = base64.b64decode(image_data.split(",")[1])
+  else:
+    image_bytes = base64.b64decode(image_data)
+  
+  # Debug image
+  with open("test.jpg", "wb") as f:
+    f.write(image_bytes)
+  
   np_arr = np.frombuffer(image_bytes, np.uint8)
   img_array = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
   
@@ -48,13 +56,18 @@ def recognize_face():
   if not image_data:
     return jsonify({"error": "Image is required"}), 400
   
-  # Decode the base64 image
-  image_bytes = base64.b64decode(image_data.split(",")[1])
+  # Check if the image data contain metadata (data:image)
+  if "data:image" in image_data:
+    image_bytes = base64.b64decode(image_data.split(",")[1])
+  else:
+    image_bytes = base64.b64decode(image_data)
+    
   np_arr = np.frombuffer(image_bytes, np.uint8)
   img_array = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
   
   # Recognize the face
   result = rface.recognize_face(img_array)
+  print(result)
   
   return jsonify(result), 200
 
@@ -72,4 +85,4 @@ def delete_face():
   return jsonify({"message": "Face deleted successfully"}), 200
 
 if __name__ == "__main__":
-  rface.run_result_publisher(debug=True)
+  rface.run_result_publisher(debug=True, port=2248)
