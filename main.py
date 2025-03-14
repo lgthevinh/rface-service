@@ -34,19 +34,17 @@ def register_face():
     image_bytes = base64.b64decode(image_data)
   
   # Debug image
-  with open("test.jpg", "wb") as f:
-    f.write(image_bytes)
+  # with open("test.jpg", "wb") as f:
+  #   f.write(image_bytes)
   
   np_arr = np.frombuffer(image_bytes, np.uint8)
   img_array = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
   
   # Register the face
-  embedding = rface.register_face(img_array, name)
+  result = rface.register_face(img_array, name)
+  print(result)
   
-  if embedding is None:
-    return jsonify({"error": "Face registration failed"}), 500
-  
-  return jsonify({"message": "Face registered successfully", "embedding": embedding.tolist()}), 200
+  return jsonify({"message": "Face registered successfully", "embedding": result.tolist()}), 200
 
 @app.route("/api/recognize_face", methods=["POST"])
 def recognize_face():

@@ -52,7 +52,7 @@ class RFace:
       
       # If no face is detected or embedding is empty, don't store it in the database
       if not data[0]["embedding"]:
-        return None
+        return {"message": "No face detected"}
       
       # Store embedding in database and return it
       embedding = np.array(data[0]["embedding"], dtype=np.float32) 
@@ -61,7 +61,7 @@ class RFace:
     
     except Exception as e:
       print(f"Error: {e}")
-      return None
+      return {"message": "Error occurred", "error": str(e)}
   
   def recognize_face(self, img_array: np.ndarray):
     """
@@ -76,7 +76,7 @@ class RFace:
       data = self.face_reg.extract_embeddings(img_array)
       if not data[0]["embedding"]:
         print("No face detected")
-        return None
+        return {"message": "No face detected"}
 
       # Get all embeddings from the database
       db_embeddings = self.db.get_all_embedding()
@@ -88,11 +88,11 @@ class RFace:
           return {"name": name, "distance": round(result["distance"], 10), "verified": result["verified"]}
         
       print("No match found")
-      return None
+      return {"message": "No match found"}
     
     except Exception as e:
       print(f"Error: {e}")
-      return None
+      return {"message": "Error occurred", "error": str(e)}
       
   def delete_face(self, name: str):
     """
