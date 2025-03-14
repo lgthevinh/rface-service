@@ -4,6 +4,26 @@
 
 R-Face service provides facial recognition capabilities. It is built with deepface framework and mainly aim for edge devices (NanoPi R5C). The service provides multi interface for different purposes. The HTTP request interface is one of the interfaces that allows the user to interact with the service through HTTP requests.
 
+### 0. Ping for service availability
+
+The ping interface allows the user to check the availability of the service. The following is the request format:
+
+#### HTTP Request
+
+- Method: `GET`
+- URL: `http://192.168.1.2:5000/ping`.
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+{
+  "message": "Pong! RFace Service is here!"
+}
+```
+
 ### 1. Face registration
 
 The face registration interface allows the user to register a face to the service. The user needs to provide the name of the person and the image of the person. The image should be encoded in base64 format. The following is the request format:
