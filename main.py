@@ -79,7 +79,7 @@ def delete_face():
   # Delete the face
   rface.db.delete_embedding(name)
   
-  return jsonify({"message": "Face deleted successfully"}), 200
+  return jsonify({"message": f"Face deleted with name: {name}"}), 200
 
 @app.route("/api/list_faces", methods=["GET"])
 def list_faces():
