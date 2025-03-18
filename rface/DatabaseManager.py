@@ -28,10 +28,10 @@ class DatabaseManager:
     self.cursor.execute("INSERT INTO faces (name, embedding) VALUES (?, ?)", (name, embedding.tobytes())  ) # Convert np array to byte
     self.conn.commit()
   
-  def get_all_embedding(self) -> Dict[str, np.ndarray]:
+  def get_all_embedding(self) -> list[Dict[str, np.ndarray]]:
     self.cursor.execute("SELECT * FROM faces")
     rows = self.cursor.fetchall()
-    return {row[1]: np.frombuffer(row[2], dtype=np.float32) for row in rows}
+    return [{"name": row[1], "embedding": np.frombuffer(row[2], dtype=np.float32)} for row in rows]
     
   def delete_embedding(self, name: str):
     self.cursor.execute("DELETE FROM faces WHERE name=?", (name,))
