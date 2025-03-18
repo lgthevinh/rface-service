@@ -82,10 +82,10 @@ class RFace:
       db_embeddings = self.db.get_all_embedding()
       
       # Compare the extracted embedding with the embeddings in the database
-      for name, embedding in db_embeddings.items():
-        result = self.face_reg.compare_embeddings(data[0]["embedding"], embedding.tolist())
+      for face in db_embeddings:
+        result = self.face_reg.compare_embeddings(data[0]["embedding"], face["embedding"].tolist())
         if result["verified"]:
-          return {"name": name, "distance": round(result["distance"], 10), "verified": result["verified"]}
+          return {"name": face["name"], "distance": round(result["distance"], 10), "verified": result["verified"]}
         
       print("No match found")
       return {"message": "No match found"}
@@ -104,6 +104,18 @@ class RFace:
       self.db.delete_embedding(name)
     except Exception as e:
       print(f"Error: {e}")
+  
+  def get_all_faces(self):
+    """
+    Get all faces from the database, return with name and embedding.
+    Returns:
+      list: List of faces with name and embedding.
+    """
+    try:
+      return self.db.get_all_embedding()
+    except Exception as e:
+      print(f"Error: {e}")
+      return {"message": "Error occurred", "error": str(e)}
   
   def run_result_publisher(self, host="0.0.0.0", port=5000, debug=False):
     """

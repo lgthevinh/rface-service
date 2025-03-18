@@ -41,12 +41,16 @@ if __name__ == "__main__":
   # print(rface.face_reg.compare_embeddings(obama_embedding, output_1[0]["embedding"]))
   
   # Test: store embedding in the database (Test done)
-  rface.register_face(img, "Barrack Obama")
+  rface.register_face(img, "Barrack Obama 1")
+  rface.register_face(img, "Barrack Obama 2")
   
   # Test: recognize face from image array
   print(rface.recognize_face(img))
   print(rface.recognize_face(img_2))
   
+  print(rface.get_all_faces())
+  
   # Test: delete embedding from the database
-  rface.delete_face("Barrack Obama")
+  rface.delete_face("Barrack Obama 1")
+  rface.delete_face("Barrack Obama 2")
   
