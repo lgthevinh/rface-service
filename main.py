@@ -42,9 +42,8 @@ def register_face():
   
   # Register the face
   result = rface.register_face(img_array, name)
-  print(result)
   
-  return jsonify({"message": "Face registered successfully", "embedding": result.tolist()}), 200
+  return jsonify({"message": "Face registered successfully", "data": result}), 200
 
 @app.route("/api/recognize_face", methods=["POST"])
 def recognize_face():
@@ -84,8 +83,11 @@ def delete_face():
 
 @app.route("/api/list_faces", methods=["GET"])
 def list_faces():
-  faces = rface.get_all_faces()
-  return jsonify(faces), 200
+  try:
+    faces = rface.get_all_faces()
+    return jsonify({"message": "success", "data": faces}), 200
+  except Exception as e:
+    return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
   rface.run_result_publisher(debug=True, port=2248)

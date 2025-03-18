@@ -88,7 +88,7 @@ class RFace:
         return {"name": face["name"], "distance": round(result["distance"], 10), "verified": result["verified"]}
         
       print("No match found")
-      return {"message": "No match found"}
+      return {"message": "No match found", "verified": False}
     
     # except Exception as e:
     #   print(f"Error: {e}")
