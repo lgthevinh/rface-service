@@ -82,5 +82,10 @@ def delete_face():
   
   return jsonify({"message": "Face deleted successfully"}), 200
 
+@app.route("/api/list_faces", methods=["GET"])
+def list_faces():
+  faces = rface.get_all_faces()
+  return jsonify(faces), 200
+
 if __name__ == "__main__":
   rface.run_result_publisher(debug=True, port=2248)

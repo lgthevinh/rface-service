@@ -28,10 +28,16 @@ class DatabaseManager:
     self.cursor.execute("INSERT INTO faces (name, embedding) VALUES (?, ?)", (name, embedding.tobytes())  ) # Convert np array to byte
     self.conn.commit()
   
+  # This function should be only used for computing, not for result publishing
   def get_all_embedding(self) -> list[Dict[str, np.ndarray]]:
-    self.cursor.execute("SELECT * FROM faces")
+    self.cursor.execute("SELECT name, embedding FROM faces")
     rows = self.cursor.fetchall()
     return [{"name": row[1], "embedding": np.frombuffer(row[2], dtype=np.float32)} for row in rows]
+  
+  def get_all_faces(self) -> list[str]:
+    self.cursor.execute("SELECT id, name FROM faces")
+    rows = self.cursor.fetchall()
+    return [{"id": row[0], "name": row[1]} for row in rows]
     
   def delete_embedding(self, name: str):
     self.cursor.execute("DELETE FROM faces WHERE name=?", (name,))

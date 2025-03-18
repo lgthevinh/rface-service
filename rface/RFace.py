@@ -112,7 +112,7 @@ class RFace:
       list: List of faces with name and embedding.
     """
     try:
-      return self.db.get_all_embedding()
+      return self.db.get_all_faces()
     except Exception as e:
       print(f"Error: {e}")
       return {"message": "Error occurred", "error": str(e)}
