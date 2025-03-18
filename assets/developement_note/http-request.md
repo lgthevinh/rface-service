@@ -51,8 +51,11 @@ The face registration interface allows the user to register a face to the servic
 - Body:
 ```json
 {
-  "message": "Face registered successfully",
-  "embedding": [0.1, 0.2, ..., 0.9] // Face embedding
+  "data": {
+    "embedding": [...], // Face embedding
+    "name": "Luong The Vinh"
+  },
+  "message": "Face registered successfully"
 }
 ```
 
@@ -111,5 +114,29 @@ The face recognition interface allows the user to recognize a face from the serv
 ```json
 {
   "message": "Face deleted successfully"
+}
+```
+
+### 4. List all registered faces
+
+#### HTTP Request
+
+- Method: `GET`
+- URL: `http://192.168.1.51:2248/api/list_faces`
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "john_doe",
+    }
+  ],
+  "message": "success"
 }
 ```
