@@ -57,7 +57,7 @@ class RFace:
       # Store embedding in database and return it
       embedding = np.array(data[0]["embedding"], dtype=np.float32) 
       self.db.store_embedding(name, embedding)
-      return embedding
+      return {"name": name, "embedding": embedding.tolist()}
     
     except Exception as e:
       print(f"Error: {e}")
@@ -71,28 +71,28 @@ class RFace:
     Returns:
       str: Name of the recognized person.
     """
-    try: 
-      # Extract embedding from image/frame
-      data = self.face_reg.extract_embeddings(img_array)
-      if not data[0]["embedding"]:
-        print("No face detected")
-        return {"message": "No face detected"}
+    # try: 
+    # Extract embedding from image/frame
+    data = self.face_reg.extract_embeddings(img_array)
+    if not data[0]["embedding"]:
+      print("No face detected")
+      return {"message": "No face detected"}
 
-      # Get all embeddings from the database
-      db_embeddings = self.db.get_all_embedding()
-      
-      # Compare the extracted embedding with the embeddings in the database
-      for face in db_embeddings:
-        result = self.face_reg.compare_embeddings(data[0]["embedding"], face["embedding"].tolist())
-        if result["verified"]:
-          return {"name": face["name"], "distance": round(result["distance"], 10), "verified": result["verified"]}
+    # Get all embeddings from the database
+    db_embeddings = self.db.get_all_embedding()
+    
+    # Compare the extracted embedding with the embeddings in the database
+    for face in db_embeddings:
+      result = self.face_reg.compare_embeddings(data[0]["embedding"], face["embedding"].tolist())
+      if result["verified"]:
+        return {"name": face["name"], "distance": round(result["distance"], 10), "verified": result["verified"]}
         
       print("No match found")
       return {"message": "No match found"}
     
-    except Exception as e:
-      print(f"Error: {e}")
-      return {"message": "Error occurred", "error": str(e)}
+    # except Exception as e:
+    #   print(f"Error: {e}")
+    #   return {"message": "Error occurred", "error": str(e)}
       
   def delete_face(self, name: str):
     """
