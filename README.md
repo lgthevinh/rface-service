@@ -25,6 +25,13 @@ To test the service, please navigate to the test folder and run the following co
 python test_rface.py
 ```
 
+## Run
+To run the service, run the main.py file:
+```bash
+python rface.py
+```
+
+
 ## Development guide
 The service has 3 main components:
 - Face recognition
