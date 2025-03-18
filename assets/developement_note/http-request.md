@@ -35,7 +35,7 @@ The face registration interface allows the user to register a face to the servic
 - Body:
 ```json
 {
-  "name": "John Doe",
+  "name": "john_doe",
   "image": "base64_encoded_image"
 }
 ```
@@ -53,7 +53,7 @@ The face registration interface allows the user to register a face to the servic
 {
   "data": {
     "embedding": [...], // Face embedding
-    "name": "Luong The Vinh"
+    "name": "john_doe"
   },
   "message": "Face registered successfully"
 }
@@ -84,7 +84,7 @@ The face recognition interface allows the user to recognize a face from the serv
 - Body:
 ```json
 {
-  "name": "John Doe",
+  "name": "john_doe", // Name/ID of the recognized face
   "distance": 0.1, // Distance between the input image and the registered face
   "verified": true // Whether the face is verified or not
 }
@@ -99,7 +99,7 @@ The face recognition interface allows the user to recognize a face from the serv
 - Body:
 ```json
 {
-  "name": "John Doe"
+  "name": "john_doe"
 }
 ```
 
@@ -113,7 +113,7 @@ The face recognition interface allows the user to recognize a face from the serv
 - Body:
 ```json
 {
-  "message": "Face deleted successfully"
+    "message": "Face deleted with name: jjohn_doe"
 }
 ```
 
