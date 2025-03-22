@@ -7,7 +7,10 @@ import serial.tools.list_ports
 
 class InterfaceManager:
   def __init__(self, name: str):
-    self.name = name if name else "InterfaceMangaer"
+    self.name = name if name else "InterfaceManager"
+  
+  def open(self):
+    print(f"Opening {self.name} interface")
   
   def push_verified_result(self, result_data):
     print(f"Pushing face recognized result to {self.name}: {result_data}")
@@ -18,20 +21,30 @@ class InterfaceManager:
   def close(self):
     print(f"Closing {self.name} interface")
   
+  def to_dict(self):
+    return {
+      "name": self.name
+    }
+  
 class UartInterfaceManager(InterfaceManager):
-  def __init__(self, name, port, baudrate=9600, timeout=1):
-    self.name = name if name else "UartInterfaceManager"
-    
+  @staticmethod
+  def get_uart_ports():
+    return [port.device for port in serial.tools.list_ports.comports()]
+  
+  def __init__(self, name="UartInterfaceManager", port=None, baudrate=9600, timeout=1):
+    self.name = name
+    self.port = port
+    self.baudrate = baudrate
+    self.timeout = timeout
+    self.serial = None
+  
+  def open(self):
     try:
-      self.serial = serial.Serial(port, baudrate, timeout=timeout)
+      self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
       time.sleep(2) # Wait for the serial connection to be established
     except serial.SerialException as e:
       self.serial = None
       raise e
-  
-  @staticmethod
-  def get_uart_ports():
-    return [port.device for port in serial.tools.list_ports.comports()]
   
   def push_verified_result(self, result_data: dict):
     super().push_verified_result(result_data)
@@ -46,6 +59,15 @@ class UartInterfaceManager(InterfaceManager):
   def close(self):
     if self.serial:
       self.serial.close()
+  
+  def to_dict(self):
+    return {
+      "type": "uart",
+      "name": self.name,
+      "port": self.serial.port,
+      "baudrate": self.serial.baudrate,
+      "timeout": self.serial.timeout
+    }
 
 class CustomUartInterface(UartInterfaceManager):
   def push_verified_result(self, result_data):

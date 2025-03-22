@@ -1,7 +1,9 @@
 import threading
 from services.rtsp_handler import RTSPHandler
 from services.face_recognition import FaceRecognition
-from services.interface_manager import InterfaceManager
+from services.interface_manager import InterfaceManager, UartInterfaceManager
+from config import DATAJSON_PATH
+import json
 
 class BackgroundWorker:
   def __init__(self, name: str, rtsp_url: str):
@@ -51,3 +53,54 @@ class BackgroundWorker:
     
     for interface in self.output_interface:
       interface.close()
+  
+  def to_dict(self):
+    return {
+      "name": self.name,
+      "rtsp_url": self.rtsp_stream.rtsp_url,
+      "interfaces": [interface.to_dict() for interface in self.output_interface]
+    }
+      
+class WorkerManager:
+  def __new___(cls): 
+    if cls._instance is None:
+      cls._instance = super(WorkerManager, cls).__new__(cls)
+    return cls._instance
+
+  def init(self):
+    self.worker_storage = []
+    
+    with open(DATAJSON_PATH, 'r') as f:
+      data = json.load(f)
+
+    for worker in data["workers"]:
+      rtsp_url = worker["rtsp_url"]
+      worker_name = worker["name"]
+      bg_worker = BackgroundWorker(worker_name, rtsp_url)
+      
+      for interface in worker["interfaces"]:
+        if interface["type"] == "uart":
+          interface_name = interface["name"]
+          port = interface["port"]
+          baudrate = interface["baudrate"]
+          timeout = interface["timeout"]
+          interface_manager = UartInterfaceManager(interface_name, port, baudrate, timeout)
+          bg_worker.add_interface(interface_manager)
+      
+      self.worker_storage.append(bg_worker)
+    
+  def save(self):
+    data = {
+      "workers": [worker.to_dict() for worker in self.worker_storage]
+    }
+    
+    with open(DATAJSON_PATH, 'w') as f:
+      json.dump(data, f, indent=2)
+  
+  def start_all_workers(self):
+    for worker in self.workers:
+      worker.start()
+      
+  def stop_all_workers(self):
+    for worker in self.workers:
+      worker.stop()
