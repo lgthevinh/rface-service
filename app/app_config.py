@@ -27,4 +27,3 @@ class AppConfig():
     
     wm = WorkerManager()
     wm.init()
-    wm.start_all_workers()
