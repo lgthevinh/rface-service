@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from api.routes import api_blueprint
 from services.face_recognition import FaceRecognition
 
-data_path = "./data/"
+data_path = "../data/"
 if not os.path.exists(data_path):
   os.makedirs(data_path)
     
