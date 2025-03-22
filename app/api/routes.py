@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from services.database_manager import DatabaseManager
 from services.face_recognition import FaceRecognition
 from services.interface_manager import UartInterfaceManager
+from services.worker import WorkerManager
 import numpy as np
 import base64
 import cv2
@@ -77,10 +78,14 @@ def handle_face():
   return jsonify({"error": "Method not allowed"}), 405
 
 # Configurations API
-@api_blueprint.route("/config/interface", methods=["GET"])
+@api_blueprint.route("/config", methods=["GET"])
 def handle_interface_config():
   if request.method == "GET":
     
     if request.args.get("interface") == "uart":
       uartlist = UartInterfaceManager.get_uart_ports()
       return jsonify({"uart_ports": uartlist}), 200
+    
+@api_blueprint.route("/workers", methods=["GET"])
+def workers_handler():
+  return jsonify([worker.to_dict() for worker in WorkerManager().worker_storage]), 200

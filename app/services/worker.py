@@ -58,18 +58,19 @@ class BackgroundWorker:
     return {
       "name": self.name,
       "rtsp_url": self.rtsp_stream.rtsp_url,
-      "interfaces": [interface.to_dict() for interface in self.output_interface]
+      "interfaces": [interface.name for interface in self.output_interface]
     }
       
 class WorkerManager:
+  _instance = None
+  worker_storage = []
+  
   def __new___(cls): 
     if cls._instance is None:
       cls._instance = super(WorkerManager, cls).__new__(cls)
     return cls._instance
 
   def init(self):
-    self.worker_storage = []
-    
     with open(DATAJSON_PATH, 'r') as f:
       data = json.load(f)
 
