@@ -38,6 +38,7 @@ class BackgroundWorker:
       if face is None and result == 0:
         print(f"Face not recognized")
         for interface in self.output_interface:
+          interface.open()
           interface.push_unverified_result({"result": result})
               
       if face is None and result is None:
@@ -58,12 +59,15 @@ class BackgroundWorker:
     return {
       "name": self.name,
       "rtsp_url": self.rtsp_stream.rtsp_url,
-      "interfaces": [interface.name for interface in self.output_interface]
+      "interfaces": [interface.to_dict() for interface in self.output_interface]
     }
+  
+  def add_output_interface(self, interface: InterfaceManager):
+    self.output_interface.append(interface)
       
 class WorkerManager:
   _instance = None
-  worker_storage = []
+  worker_storage: list[BackgroundWorker] = []
   
   def __new___(cls): 
     if cls._instance is None:
@@ -97,6 +101,20 @@ class WorkerManager:
     
     with open(DATAJSON_PATH, 'w') as f:
       json.dump(data, f, indent=2)
+  
+  def add_worker(self, worker: BackgroundWorker):
+    for w in self.worker_storage:
+      if w.name == worker.name:
+        raise ValueError(f"Worker with name {worker.name} already exists")
+    self.worker_storage.append(worker)
+    self.save()
+    
+  def remove_worker(self, worker_name: str):
+    for worker in self.worker_storage:
+      if worker.name == worker_name:
+        self.worker_storage.remove(worker)
+        self.save()
+        return
   
   def start_all_workers(self):
     for worker in self.workers:
