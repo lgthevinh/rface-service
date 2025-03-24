@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from services.database_manager import DatabaseManager
 from services.face_recognition import FaceRecognition
 from services.interface_manager import UartInterfaceManager
-from services.worker import WorkerManager
+from services.worker import WorkerManager, BackgroundWorker
 import numpy as np
 import base64
 import cv2
@@ -86,6 +86,39 @@ def handle_interface_config():
       uartlist = UartInterfaceManager.get_uart_ports()
       return jsonify({"uart_ports": uartlist}), 200
     
-@api_blueprint.route("/workers", methods=["GET"])
+@api_blueprint.route("/workers", methods=["GET", "POST", "DELETE"])
 def workers_handler():
-  return jsonify([worker.to_dict() for worker in WorkerManager().worker_storage]), 200
+  if request.method == "GET":
+    return jsonify([worker.to_dict() for worker in WorkerManager().worker_storage]), 200
+  if request.method == "POST":
+    data = request.get_json()
+    
+    rtsp_url = data.get("rtsp_url")
+    worker_name = data.get("name")
+    
+    bg_worker = BackgroundWorker(worker_name, rtsp_url)
+    
+    interfaces = data.get("interfaces")
+    for interface in interfaces:
+      if interface["type"] == "uart":
+        interface_name = interface["name"]
+        port = interface["port"]
+        baudrate = interface["baudrate"]
+        timeout = interface["timeout"]
+        interface_manager = UartInterfaceManager(interface_name, port, baudrate, timeout)
+        bg_worker.add_output_interface(interface_manager)
+
+    try:
+      WorkerManager().add_worker(bg_worker)
+    except Exception as e:
+      return jsonify({"error": str(e)}), 400
+    
+    return jsonify({"message": "Worker created successfully", "worker": bg_worker.to_dict()}), 200
+  if request.method == "DELETE":
+    data = request.get_json()
+    worker_name = data.get("name")
+    if not worker_name:
+      return jsonify({"error": "Worker name is required"}), 400
+    
+    WorkerManager().remove_worker(worker_name)
+    return jsonify({"message": "Worker deleted successfully"}), 200
