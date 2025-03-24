@@ -22,9 +22,7 @@ class InterfaceManager:
     print(f"Closing {self.name} interface")
   
   def to_dict(self):
-    return {
-      "name": self.name
-    }
+    raise NotImplementedError("to_dict method must be implemented in child class")
   
 class UartInterfaceManager(InterfaceManager):
   @staticmethod
@@ -64,9 +62,9 @@ class UartInterfaceManager(InterfaceManager):
     return {
       "type": "uart",
       "name": self.name,
-      "port": self.serial.port,
-      "baudrate": self.serial.baudrate,
-      "timeout": self.serial.timeout
+      "port": self.port,
+      "baudrate": self.baudrate,
+      "timeout": self.timeout
     }
 
 class CustomUartInterface(UartInterfaceManager):
