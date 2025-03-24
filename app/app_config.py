@@ -27,3 +27,7 @@ class AppConfig():
     
     wm = WorkerManager()
     wm.init()
+    
+    # Debugging
+    # for index, worker in enumerate(wm.worker_storage):
+    #   print(f"Worker {index}: {worker.to_dict()}")
