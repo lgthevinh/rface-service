@@ -286,3 +286,26 @@ The face recognition interface allows the user to recognize a face from the serv
   "message": "Worker deleted successfully"
 }
 ```
+
+## Interface
+
+### 1. Scan for UART interfaces (port)
+
+#### HTTP Request
+
+- Method: `GET`
+- URL: `http://192.168.100.59:2248/api/config?interface=uart`
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+{
+  "uart_ports": [
+    "COM5",
+    "COM8"
+  ]
+}
+```
