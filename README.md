@@ -52,3 +52,5 @@ Interface Manager:
   
 Database Layer (SQLite): 
   - Stores RTSP URLs, Face Embeddings, Logs
+
+For more information, please refer to the development note in the assets folder or click [here](/assets/docs)
