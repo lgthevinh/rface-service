@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'a
 from services.rtsp_handler import RTSPHandler
 from services.face_recognition import FaceRecognition
 import cv2
+from datetime import datetime
 
 rtsp_stream = RTSPHandler("rtsp://192.168.100.129:8080/h264.sdp")
 
@@ -29,6 +30,13 @@ def recognition_worker():
     if face is None and result is None:
       print("No face detected")
 
+def write_frame_to_file_worker(frame):
+  """Writes the latest frame to a file"""
+  while True:
+    # Write to file only if the frame is not None and evcery 5 seconds with timestamp
+    if frame is not None:
+      timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+      cv2.imwrite(f"frame_{timestamp}.jpg", frame)
 
 if __name__ == "__main__":
   
@@ -45,6 +53,9 @@ if __name__ == "__main__":
     frame = rtsp_stream.get_current_frame()
     if frame is not None:
       cv2.imshow("RTSP Stream", frame)
+      
+      # Debugging: Output the frame to a file
+      # cv2.imwrite("frame.jpg", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
       break
