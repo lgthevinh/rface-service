@@ -1,5 +1,5 @@
 import os
-
+import cv2
 from services.database_manager import DatabaseManager
 from services.worker import WorkerManager
 from services.face_recognition import FaceRecognition
@@ -27,10 +27,16 @@ class AppConfig():
         f.write('{"workers":[]}')
       
     FaceRecognition().set_model("Dlib")  
-    FaceRecognition().set_threshold(0.05)
+    FaceRecognition().set_threshold(0.06)
     
     wm = WorkerManager()
     wm.init()
+    
+    # print(cv2.getBuildInformation())
+    try: 
+      cv2.ocl.setUseOpenCL(True)
+    except Exception:
+      print("OpenCV cannot use OpenCL")
     
     # Debugging
     # for index, worker in enumerate(wm.worker_storage):

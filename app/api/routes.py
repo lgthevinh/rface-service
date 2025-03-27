@@ -27,8 +27,14 @@ def register_face():
   else:
     image_bytes = base64.b64decode(image_data)
     
+  with open("test.jpg", "wb") as f:
+    f.write(image_bytes)
+    
   np_arr = np.frombuffer(image_bytes, np.uint8)
   img_array = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+  
+  # Reduce resolution
+  img_array = cv2.resize(img_array, (0, 0), fx=0.5, fy=0.5)
   
   face_recognition.register(name, img_array)
   return jsonify({"message": "Face registered successfully"}), 200
