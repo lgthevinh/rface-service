@@ -13,7 +13,7 @@ if __name__ == "__main__":
   data_path = "./data/"
   
   if not os.path.exists(data_path):
-      os.makedirs(data_path)
+    os.makedirs(data_path)
     
   # Check DEEPFACE_HOME environment variable
   if "DEEPFACE_HOME" not in os.environ:
@@ -24,7 +24,7 @@ if __name__ == "__main__":
   FaceRecognition().set_threshold(0.06)
   
   worker = BackgroundWorker("RTSP Stream", "rtsp://192.168.100.129:8080/h264.sdp")
-  worker.add_interface(UartInterfaceManager("UartInterface", "COM4", 115200))
+  worker.add_interface(UartInterfaceManager("UartInterface", "/dev/ttyUSB0", 115200))
   worker.start()
   
   print("Press 'q' to quit")
