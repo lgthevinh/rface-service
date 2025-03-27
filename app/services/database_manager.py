@@ -52,7 +52,7 @@ class DatabaseManager:
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         camera_id INTEGER NOT NULL,
-        detected_face_id INTEGER NOT NULL,
+        detected_face_id INTEGER,
         FOREIGN KEY (camera_id) REFERENCES cameras(id)
         FOREIGN KEY (detected_face_id) REFERENCES faces(id)
       )
