@@ -3,7 +3,7 @@ import os
 from services.database_manager import DatabaseManager
 from services.worker import WorkerManager
 from services.face_recognition import FaceRecognition
-from config import DATAPATH
+from config import DATAPATH, DATAJSON_PATH
 
 class AppConfig():
   def __new___(cls): 
@@ -21,6 +21,10 @@ class AppConfig():
     if "DEEPFACE_HOME" not in os.environ:
       os.makedirs("./data/.deepface/weights", exist_ok=True)
       os.environ["DEEPFACE_HOME"] = DATAPATH
+    
+    if not os.path.exists(DATAJSON_PATH):
+      with open(DATAJSON_PATH, 'w') as f:
+        f.write('{"workers":[]}')
       
     FaceRecognition().set_model("Dlib")  
     FaceRecognition().set_threshold(0.05)
