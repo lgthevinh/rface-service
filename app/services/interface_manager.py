@@ -1,9 +1,10 @@
 import serial
 import time
 import json
-
 import serial.tools
 import serial.tools.list_ports
+from services.database_manager import DatabaseManager
+from models.log import Log
 
 class InterfaceManager:
   def __init__(self, name: str):
@@ -68,9 +69,94 @@ class UartInterfaceManager(InterfaceManager):
     }
 
 class CustomUartInterface(UartInterfaceManager):
+  serPort = serial.Serial()
+  serPort.timeout = 1  # Set timeout (optional)
+  serPort.bytesize = serial.EIGHTBITS
+  serPort.parity = serial.PARITY_NONE
+  serPort.stopbits = serial.STOPBITS_ONE
+  serPort.dsrdtr = False  # Prevent automatic opening
+  serPort.rtscts = False
+  TYPE_VERIFIED_HUMAN = 0x01
+  TYPE_NONVERIFIED_HUMAN = 0x02
+  
+  def __init__(self, name):
+    self.name = name
+  
+  def connectToPort(self, name, baudrate):
+    try:
+      self.serPort.port = name
+      self.serPort.baudrate = baudrate
+      self.serPort.open()
+      print("connected to port")
+      return True
+    except KeyError as e:
+      print(e)
+      return False
+
+  def getPorts():
+    # Step 1: Scan available serial ports
+    ports = serial.tools.list_ports.comports()
+    port_info = []  # Changed to store information about all ports
+
+    for port in ports:
+      # Collecting information about each port
+      port_info.append(
+        {"device": port.device, "description": port.description, "hwid": port.hwid}
+      )
+
+    return port_info  # Return the collected port information
+
+  def sendData(self, data):
+    self.serPort.write(data)
+
+  def getTargetPort(self, target_vid="1A86", target_pid="7523"):
+    ports = self.getPorts()  # Updated variable name
+    VID = ["1A86", "10C4", "0403", "067B"]
+    for port in ports:
+      hwid = port["hwid"]  # Example: "USB VID:PID=1A86:7523 LOCATION=7-1"
+      for vid in VID:
+        if f"VID:PID={vid}" in hwid:
+            return True, port["device"]
+      if f"VID:PID={target_vid}" in hwid:
+        return True, port["device"]
+    return False, None
+
+  def sendNotifyEnable(self, type, id):
+    if type == self.TYPE_VERIFIED_HUMAN:
+      size = len(id) + 4
+      frames = [0x72, 0x67, 0x00, 0x00, 0x00, 0x00, 0x01]
+      frames[2] = size >> 8
+      frames[3] = size & 0xFF
+      frames.extend(id)
+      frames.append(0xFF)
+      self.sendData(frames)
+    elif type == self.TYPE_NONVERIFIED_HUMAN:
+      frames = [0x72, 0x67, 0x00, 0x04, 0x01, 0x02, 0x02, 0xFF]
+      self.sendData(frames)
+  
+  def open(self):
+    state, name = self.getTargetPort()
+    if state:
+      print(f"port Founded: {name}")
+      self.connectToPort(name, 115200)
+    else:
+      print("port not found")
+  
   def push_verified_result(self, result_data):
-    pass
+    self.sendNotifyEnable(self.TYPE_VERIFIED_HUMAN, result_data["face"]["id"])
   
   def push_unverified_result(self, result_data):
-    pass
+    self.sendNotifyEnable(self.TYPE_NONVERIFIED_HUMAN, None)
+    
+class LogInterfaceManager(InterfaceManager):
+  db_manager = DatabaseManager()
   
+  def __init__(self, camera_id: int, name="LogInterfaceManager"):
+    self.name = name
+    self.camera_id = camera_id
+  
+  def push_verified_result(self, result_data):
+    self.db_manager.store_log(camera_id=self.camera_id, detected_face_id=result_data["face"]["id"])
+    
+  def push_unverified_result(self, result_data):
+    self.db_manager.store_log(camera_id=self.camera_id, detected_face_id=None)
