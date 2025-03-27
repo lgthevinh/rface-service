@@ -3,6 +3,7 @@ from services.database_manager import DatabaseManager
 from services.face_recognition import FaceRecognition
 from services.interface_manager import UartInterfaceManager
 from services.worker import WorkerManager, BackgroundWorker
+from models.camera import Camera
 import numpy as np
 import base64
 import cv2
@@ -86,6 +87,31 @@ def handle_interface_config():
       uartlist = UartInterfaceManager.get_uart_ports()
       return jsonify({"uart_ports": uartlist}), 200
     
+@api_blueprint.route("/config/cameras", methods=["GET", "POST", "DELETE"])
+def handle_cameras():
+  if request.method == "GET":
+    cameras = db.get_all_cameras()
+    return jsonify([camera.to_dict() for camera in cameras]), 200
+  
+  if request.method == "POST":
+    data = request.get_json()
+    name = data.get("name")
+    rtsp_url = data.get("rtsp_url")
+    
+    if not name or not rtsp_url:
+      return jsonify({"error": "Name and RTSP URL are required"}), 400
+    
+    db.store_camera(Camera(name, rtsp_url))
+    return jsonify({"message": "Camera stored successfully"}), 200
+  
+  if request.method == "DELETE":
+    camera_id = request.args.get("id")
+    if not camera_id:
+      return jsonify({"error": "Camera ID is required"}), 400
+    
+    db.delete_camera(int(camera_id))
+    return jsonify({"message": "Camera deleted successfully"}), 200
+    
 @api_blueprint.route("/workers", methods=["GET", "POST", "DELETE"])
 def workers_handler():
   if request.method == "GET":
@@ -93,8 +119,12 @@ def workers_handler():
   if request.method == "POST":
     data = request.get_json()
     
-    rtsp_url = data.get("rtsp_url")
+    camera_id = data.get("camera_id")
     worker_name = data.get("name")
+    
+    # Get RTSP URL from camera ID
+    camera = db.get_camera(camera_id)
+    rtsp_url = camera.rtsp_url
     
     bg_worker = BackgroundWorker(worker_name, rtsp_url)
     
