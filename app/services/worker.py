@@ -117,9 +117,9 @@ class WorkerManager:
         return
   
   def start_all_workers(self):
-    for worker in self.workers:
+    for worker in self.worker_storage:
       worker.start()
       
   def stop_all_workers(self):
-    for worker in self.workers:
+    for worker in self.worker_storage:
       worker.stop()
