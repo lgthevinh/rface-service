@@ -230,7 +230,7 @@ The face recognition interface allows the user to recognize a face from the serv
 ```json
 {
   "name": "RTSP Stream",
-  "rtsp_url": "rtsp://192.168.100.129:8080/h264.sdp",
+  "camera_id": 1,
   "interfaces": [
     {
       "type": "uart",
