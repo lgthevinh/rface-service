@@ -14,11 +14,11 @@ class RTSPHandler:
   def start(self):
     """Start the RTSP stream in a background thread"""
     self.running = True
+    self._set_capture()
     threading.Thread(target=self._capture_frames, daemon=True).start()
 
   def _capture_frames(self):
     """Continuously capture frames from the RTSP stream"""
-    self._set_capture()
     while self.running:
       ret, frame = self.capture.read()
       
