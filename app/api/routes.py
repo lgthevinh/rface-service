@@ -152,3 +152,37 @@ def workers_handler():
     
     WorkerManager().remove_worker(worker_name)
     return jsonify({"message": "Worker deleted successfully"}), 200
+  
+@api_blueprint.route("/workers/start", methods=["POST"])
+def start_workers():
+  if request.args.get("name"):
+    worker_name = request.args.get("name")
+    
+    if worker_name == "all":
+      WorkerManager().start_all_workers()
+      return jsonify({"message": "All workers started successfully"}), 200
+    
+    for worker in WorkerManager().worker_storage:
+      if worker.name == worker_name:
+        worker.start()
+        return jsonify({"message": f"Worker {worker_name} started successfully"}), 200
+    return jsonify({"error": f"Worker {worker_name} not found"}), 404
+  
+  return jsonify({"error": "Worker name is required"}), 400
+
+@api_blueprint.route("/workers/stop", methods=["POST"])
+def stop_workers():
+  if request.args.get("name"):
+    worker_name = request.args.get("name")
+    
+    if worker_name == "all":
+      WorkerManager().stop_all_workers()
+      return jsonify({"message": "All workers stopped successfully"}), 200
+    
+    for worker in WorkerManager().worker_storage:
+      if worker.name == worker_name:
+        worker.stop()
+        return jsonify({"message": f"Worker {worker_name} stopped successfully"}), 200
+    return jsonify({"error": f"Worker {worker_name} not found"}), 404
+  
+  return jsonify({"error": "Worker name is required"}), 400
