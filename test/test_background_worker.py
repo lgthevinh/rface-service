@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'a
 
 from services.worker import BackgroundWorker
 from services.face_recognition import FaceRecognition
-from services.interface_manager import UartInterfaceManager
+from services.interface_manager import CustomUartInterface
 
 if __name__ == "__main__":
   
@@ -24,7 +24,7 @@ if __name__ == "__main__":
   FaceRecognition().set_threshold(0.06)
   
   worker = BackgroundWorker("RTSP Stream", "rtsp://192.168.100.129:8080/h264.sdp")
-  worker.add_interface(UartInterfaceManager("UartInterface", "COM4", 115200))
+  worker.add_interface(CustomUartInterface("CUartInterface"))
   worker.start()
   
   print("Press 'q' to quit")
