@@ -11,6 +11,7 @@ class BackgroundWorker:
     self.rtsp_stream = RTSPHandler(rtsp_url)
     self.is_running = False
     self.output_interface = []
+    self.face_recognition = FaceRecognition()
     
   def add_interface(self, interface: InterfaceManager):
     """Add an output interface to send the recognition result"""
@@ -20,6 +21,8 @@ class BackgroundWorker:
     """Start the background worker for face recognition for each RTSP stream"""
     self.is_running = True
     self.rtsp_stream.start()
+    for interface in self.output_interface:
+      interface.open()
     threading.Thread(target=self._run, daemon=True).start()
     
   def _run(self):
@@ -28,7 +31,7 @@ class BackgroundWorker:
       if frame is None:
         continue  # No frame yet, skip
         
-      face, result = FaceRecognition().recognize(frame)
+      face, result = self.face_recognition.recognize(frame)
       
       if face is not None:
         print(f"Face recognized: {face.name}")
@@ -38,14 +41,10 @@ class BackgroundWorker:
       if face is None and result == 0:
         print(f"Face not recognized")
         for interface in self.output_interface:
-          interface.open()
           interface.push_unverified_result({"result": result})
               
       if face is None and result is None:
         print("No face detected")
-
-      # skip the previous frame just get the latest frame
-      self.rtsp_stream.processing_done()
 
   def stop(self):
     """Stop the background worker"""
