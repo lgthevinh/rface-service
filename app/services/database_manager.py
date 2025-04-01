@@ -154,14 +154,6 @@ class DatabaseManager:
       self.conn.commit()
     except Exception as e:
       self.conn.rollback()
-      raise e
-  
-  def store_log(self, log: Log):
-    try:
-      self.cursor.execute("INSERT INTO logs (camera_id, detected_face_id) VALUES (?, ?)", (log.camera_id, log.detected_face_id))
-      self.conn.commit()
-    except Exception as e:
-      self.conn.rollback()
       raise e    
   
   def get_all_logs(self) -> list[Log]:

@@ -4,7 +4,6 @@ import json
 import serial.tools
 import serial.tools.list_ports
 from services.database_manager import DatabaseManager
-from models.log import Log
 
 class InterfaceManager:
   def __init__(self, name: str):
@@ -155,6 +154,13 @@ class CustomUartInterface(UartInterfaceManager):
   def push_unverified_result(self, result_data):
     self.sendNotifyEnable(self.TYPE_NONVERIFIED_HUMAN, None)
     
+  def to_dict(self):
+    return {
+      "type": "cuart",
+      "name": self.name,
+      "timeout": self.serPort.timeout,
+    }
+    
 class LogInterfaceManager(InterfaceManager):
   db_manager = DatabaseManager()
   
@@ -167,3 +173,10 @@ class LogInterfaceManager(InterfaceManager):
     
   def push_unverified_result(self, result_data):
     self.db_manager.store_log(camera_id=self.camera_id, detected_face_id=None)
+  
+  def to_dict(self):
+    return {
+      "type": "log",
+      "name": self.name,
+      "camera_id": self.camera_id
+    }

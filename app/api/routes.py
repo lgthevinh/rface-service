@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.database_manager import DatabaseManager
 from services.face_recognition import FaceRecognition
-from services.interface_manager import UartInterfaceManager
+from services.interface_manager import UartInterfaceManager, CustomUartInterface, LogInterfaceManager
 from services.worker import WorkerManager, BackgroundWorker
 from models.camera import Camera
 import numpy as np
@@ -143,6 +143,16 @@ def workers_handler():
         timeout = interface["timeout"]
         interface_manager = UartInterfaceManager(interface_name, port, baudrate, timeout)
         bg_worker.add_output_interface(interface_manager)
+        
+      if interface["type"] == "cuart":
+        interface_name = interface["name"]
+        interface_manager = CustomUartInterface(interface_name)
+        bg_worker.add_output_interface(interface_manager)
+        
+      if interface["type"] == "log":
+        interface_name = interface["name"]
+        interface_manager = LogInterfaceManager(camera_id=camera_id, name=interface_name)
+        bg_worker.add_output_interface(interface_manager)
 
     try:
       WorkerManager().add_worker(bg_worker)
@@ -165,18 +175,12 @@ def start_workers():
     worker_name = request.args.get("name")
     
     if worker_name == "all":
-      try:
-        WorkerManager().start_all_workers()
-        return jsonify({"message": "All workers started successfully"}), 200
-      except Exception as e:
-        return jsonify({"error": str(e)}), 500
+      WorkerManager().start_all_workers()
+      return jsonify({"message": "All workers started successfully"}), 200
     
     for worker in WorkerManager().worker_storage:
       if worker.name == worker_name:
-        try:
-          worker.start()
-        except Exception as e:
-          print(f"Error starting worker {worker_name}: {e}")
+        worker.start()
         return jsonify({"message": f"Worker {worker_name} started successfully"}), 200
     return jsonify({"error": f"Worker {worker_name} not found"}), 404
   
