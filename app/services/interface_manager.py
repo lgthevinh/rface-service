@@ -93,7 +93,7 @@ class CustomUartInterface(UartInterfaceManager):
       print(e)
       return False
 
-  def getPorts():
+  def getPorts(self):
     # Step 1: Scan available serial ports
     ports = serial.tools.list_ports.comports()
     port_info = []  # Changed to store information about all ports
@@ -123,11 +123,18 @@ class CustomUartInterface(UartInterfaceManager):
 
   def sendNotifyEnable(self, type, id):
     if type == self.TYPE_VERIFIED_HUMAN:
-      size = len(id) + 4
+      
+      # Convert id to a list of hex bytes
+      id_bytes = []
+      while id > 0:
+        id, bytes = divmod(id, 256)
+        id_bytes.append(bytes)
+      
+      size = len(id_bytes) + 4
       frames = [0x72, 0x67, 0x00, 0x00, 0x00, 0x00, 0x01]
       frames[2] = size >> 8
       frames[3] = size & 0xFF
-      frames.extend(id)
+      frames.extend(id_bytes)
       frames.append(0xFF)
       self.sendData(frames)
     elif type == self.TYPE_NONVERIFIED_HUMAN:
