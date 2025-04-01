@@ -165,12 +165,18 @@ def start_workers():
     worker_name = request.args.get("name")
     
     if worker_name == "all":
-      WorkerManager().start_all_workers()
-      return jsonify({"message": "All workers started successfully"}), 200
+      try:
+        WorkerManager().start_all_workers()
+        return jsonify({"message": "All workers started successfully"}), 200
+      except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
     for worker in WorkerManager().worker_storage:
       if worker.name == worker_name:
-        worker.start()
+        try:
+          worker.start()
+        except Exception as e:
+          print(f"Error starting worker {worker_name}: {e}")
         return jsonify({"message": f"Worker {worker_name} started successfully"}), 200
     return jsonify({"error": f"Worker {worker_name} not found"}), 404
   
