@@ -117,7 +117,11 @@ class WorkerManager:
   
   def start_all_workers(self):
     for worker in self.worker_storage:
-      worker.start()
+      try: 
+        worker.start()
+      except Exception as e:
+        print(f"Error starting worker {worker.name}: {e}")
+        worker.stop()
       
   def stop_all_workers(self):
     for worker in self.worker_storage:
