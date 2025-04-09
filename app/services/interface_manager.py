@@ -55,9 +55,13 @@ class UartInterfaceManager(InterfaceManager):
         print(f"Error sending data via UART: {e}")
         
   def close(self):
-    if self.serial:
-      self.serial.close()
-  
+    try:
+      if self.serial and self.serial.is_open:
+        self.serial.close()
+        print(f"UART connection closed on port {self.port}")
+    except serial.SerialException as e:
+      print(f"Error closing UART connection: {e}")
+      
   def to_dict(self):
     return {
       "type": "uart",
@@ -67,7 +71,7 @@ class UartInterfaceManager(InterfaceManager):
       "timeout": self.timeout
     }
 
-class CustomUartInterface(UartInterfaceManager):
+class CustomUartInterface():
   serPort = serial.Serial()
   serPort.timeout = 1  # Set timeout (optional)
   serPort.bytesize = serial.EIGHTBITS
@@ -147,6 +151,10 @@ class CustomUartInterface(UartInterfaceManager):
       self.connectToPort(name, 115200)
     else:
       print("port not found")
+  
+  def close(self):
+    self.serPort.close()
+    print("UART connection closed")
   
   def push_verified_result(self, result_data):
     self.sendNotifyEnable(self.TYPE_VERIFIED_HUMAN, result_data["face"]["id"])
