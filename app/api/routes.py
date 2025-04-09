@@ -202,3 +202,13 @@ def stop_workers():
     return jsonify({"error": f"Worker {worker_name} not found"}), 404
   
   return jsonify({"error": "Worker name is required"}), 400
+
+# Logs
+@api_blueprint.route("/logs", methods=["GET"])
+def logs_handler():
+  if request.method == "GET":
+    
+    logs = db.get_all_logs()
+    return jsonify([log.to_dict() for log in logs]), 200
+  
+  return jsonify({"error": "Method not allowed"}), 405
