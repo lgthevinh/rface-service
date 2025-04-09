@@ -161,6 +161,29 @@ class DatabaseManager:
     rows = self.cursor.fetchall()
     return [Log(id=row[0], timestamp=row[1], camera_id=row[2], detected_face_id=row[3]) for row in rows]
   
+  def get_logs(self, camera_id: int, start_time, end_time, face_id, limit, offset):
+    query = """
+      SELECT timestamp, camera_id, detected_face_id FROM logs 
+    """
+
+    if camera_id:
+      query += f" WHERE camera_id = {camera_id}"
+      
+    if start_time:
+      query += f" AND timestamp >= '{start_time}'"
+      
+    if end_time:
+      query += f" AND timestamp <= '{end_time}'"
+      
+    if face_id:
+      query += f" AND detected_face_id = {face_id}"
+    
+    if limit:
+      query += f" LIMIT {limit}"
+      
+    if offset:
+      query += f" OFFSET {offset}"
+    
   def clear_logs(self):
     try: 
       self.cursor.execute("DELETE FROM logs")
