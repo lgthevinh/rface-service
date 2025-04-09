@@ -10,7 +10,7 @@ from services.face_recognition import FaceRecognition
 import cv2
 from datetime import datetime
 
-rtsp_stream = RTSPHandler("rtsp://192.168.1.175:8080/h264.sdp")
+rtsp_stream = RTSPHandler("rtsp://vinh:030805@192.168.100.152/live")
 
 def recognition_worker():
   """Runs the recognition task only on the latest frame"""
