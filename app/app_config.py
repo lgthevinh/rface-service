@@ -6,6 +6,8 @@ from services.face_recognition import FaceRecognition
 from config import DATAPATH, DATAJSON_PATH
 
 class AppConfig():
+  _instance = None
+  
   def __new___(cls): 
     if cls._instance is None:
       cls._instance = super(AppConfig, cls).__new__(cls)
