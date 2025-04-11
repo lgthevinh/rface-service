@@ -13,11 +13,21 @@ class RTSPHandler:
     
   def start(self):
     """Start the RTSP stream in a background thread"""
-    self.running = True
-    self.capture = cv2.VideoCapture(self.rtsp_url)
-    self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-    self.thread = threading.Thread(target=self._capture_frames, daemon=True)
-    self.thread.start()
+    try:
+      if self.capture is not None:
+        self.capture.release()
+      self.running = True
+      self.capture = cv2.VideoCapture(self.rtsp_url)
+      self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+      self.thread = threading.Thread(target=self._capture_frames, daemon=True)
+      self.thread.start()
+    except Exception as e:
+      self.running = False
+      print(f"Error starting RTSP stream: {e}")
+      if self.capture is not None:
+        self.capture.release()
+        self.capture = None
+      return
 
   def _capture_frames(self):
     """Continuously capture frames from the RTSP stream"""

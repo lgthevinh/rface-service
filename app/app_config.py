@@ -24,12 +24,15 @@ class AppConfig():
       os.makedirs("./data/.deepface/weights", exist_ok=True)
       os.environ["DEEPFACE_HOME"] = DATAPATH
     
+    if "OPENCV_FFMPEG_CAPTURE_OPTIONS" not in os.environ:
+      os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "timeout;3000"
+    
     if not os.path.exists(DATAJSON_PATH):
       with open(DATAJSON_PATH, 'w') as f:
         f.write('{"workers":[]}')
       
     FaceRecognition().set_model("Dlib")  
-    FaceRecognition().set_threshold(0.05)
+    FaceRecognition().set_threshold(0.042)
     
     wm = WorkerManager()
     wm.init()
