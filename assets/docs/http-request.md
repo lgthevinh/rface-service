@@ -289,7 +289,7 @@ The face recognition interface allows the user to recognize a face from the serv
 
 ## Interface
 
-### 1. Scan for UART interfaces (port)
+### Scan for UART interfaces (port)
 
 #### HTTP Request
 
@@ -308,4 +308,276 @@ The face recognition interface allows the user to recognize a face from the serv
     "COM8"
   ]
 }
+```
+
+## Camera
+
+### 1. List all registered cameras
+
+#### HTTP Request
+
+- Method: `GET`
+- URL: `http://{{url}}/api/config/cameras`
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+[
+  {
+    "id": 6,
+    "name": "Wyze Cam 1",
+    "rtsp_url": "rtsp://vinh:030805@192.168.100.152/live"
+  },
+  {
+    "id": 7,
+    "name": "Bova Cam",
+    "rtsp_url": "rtsp://192.168.1.188/0"
+  }
+]
+```
+
+### 2. Add a new camera
+
+#### HTTP Request
+
+- Method: `POST`
+- URL: `http://{{url}}/api/config/cameras`
+- Body:
+```json
+{
+  "name": "Bova Cam",
+  "rtsp_url": "rtsp://192.168.1.188/0"
+}
+```
+
+#### Response
+
+- Status: `200 OK`
+- Body: 
+```json
+{
+  "message": "Camera stored successfully"
+}
+```
+
+### 3. Delete a camera
+
+#### HTTP Request
+
+- Method: `DELETE`
+- URL: `http://{{url}}/api/config/cameras?id=6`
+- Parameters:
+  - `id` (int): The ID of the camera to be deleted. (For example, `id=6`)
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+{
+  "message": "Camera deleted successfully"
+}
+```
+
+## Background worker
+
+### 1. List all workers
+
+#### HTTP Request
+
+- Method: `GET`
+- URL: `http://{{url}}/api/workers`
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+[
+    {
+        "interfaces": [
+            {
+                "name": "CUartInterface",
+                "timeout": 1,
+                "type": "cuart"
+            },
+            {
+                "camera_id": 6,
+                "name": "LogInterface",
+                "type": "log"
+            }
+        ],
+        "name": "RTSP Stream",
+        "rtsp_url": "rtsp://vinh:030805@192.168.100.152/live"
+    },
+    {
+        "interfaces": [
+            {
+                "name": "CUartInterface",
+                "timeout": 1,
+                "type": "cuart"
+            },
+            {
+                "camera_id": 7,
+                "name": "LogInterface",
+                "type": "log"
+            }
+        ],
+        "name": "RTSP Stream 1",
+        "rtsp_url": "rtsp://192.168.1.188/0"
+    }
+]
+```
+
+### 2. Add a new worker
+
+#### HTTP Request
+
+- Method: `POST`
+- URL: `http://{{url}}/api/workers`
+
+- Body:
+```json
+{
+  "name": "RTSP Stream",
+  "camera_id": 1,
+  "interfaces": [
+    {
+      "type": "uart",
+      "name": "UartInterface",
+      "port": "COM4",
+      "baudrate": 9600,
+      "timeout": 1000
+    }
+  ]
+}
+```
+
+#### Response
+
+- Status: `200 OK`
+- Body: 
+```json
+{
+  "message": "Worker created successfully",
+  "worker": {
+    "interfaces": [
+      {
+        "name": "CUartInterface",
+        "timeout": 1,
+        "type": "cuart"
+      },
+      {
+        "camera_id": 7,
+        "name": "LogInterface",
+        "type": "log"
+      }
+    ],
+    "name": "RTSP Stream 1",
+    "rtsp_url": "rtsp://192.168.1.188/0"
+  }
+}
+```
+
+### 3. Delete a worker
+
+#### HTTP Request
+
+- Method: `DELETE`
+- URL: `http://{{url}}/api/workers`
+- Post body: 
+```json
+{
+  "name": "RTSP Stream" // Name of the worker to be deleted
+}
+```
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+{
+  "message": "Worker deleted successfully"
+}
+```
+
+### 4. Start a worker
+
+#### HTTP Request
+
+- Method: `POST`
+- URL: `http://{{url}}/api/workers/start?name=RTSP Stream 1`
+- Parameters:
+  - `name` (string): The name of the worker to be started. (For example, `name=RTSP Stream 1`). Or to start all workers, use `name=all`.
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+{
+  "message": "Worker started successfully"
+}
+```
+
+### 5. Stop a worker
+
+#### HTTP Request
+
+- Method: `POST`
+- URL: `http://{{url}}/api/workers/stop?name=RTSP Stream 1`
+- Parameters:
+  - `name` (string): The name of the worker to be stopped. (For example, `name=RTSP Stream 1`). Or to stop all workers, use `name=all`.
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+{
+  "message": "Worker stopped successfully"
+}
+```
+
+### 6. Get logs
+
+#### HTTP Request
+
+- Method: `GET`
+- URL: `http://{{url}}/api/logs`
+- Body: None
+
+#### Response
+
+- Status: `200 OK`
+- Body:
+```json
+[
+    {
+        "camera_id": 6,
+        "detected_face_id": 3,
+        "id": 10,
+        "timestamp": "2025-04-09 17:49:37"
+    },
+    {
+        "camera_id": 6,
+        "detected_face_id": 3,
+        "id": 11,
+        "timestamp": "2025-04-09 17:49:38"
+    },
+    {
+        "camera_id": 7,
+        "detected_face_id": null,
+        "id": 30,
+        "timestamp": "2025-04-11 08:20:09"
+    }
+  ]
 ```
