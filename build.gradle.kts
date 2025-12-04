@@ -23,6 +23,7 @@ dependencies {
     implementation(fileTree("libs") {
         include("*.jar")
     })
+    implementation(files("aibase/build/libs/aibase.jar"))
 
 
 }
