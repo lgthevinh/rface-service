@@ -2,39 +2,43 @@ package org.thingai.base.ai.vector.dao;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.sqlite.SQLiteConfig;
 import org.thingai.base.log.ILog;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DaoVectorSqlite {
     private static final String TAG = "DaoVectorSqlite";
     private final String dbPath;
     private final String extPath; // vector extension library path
-    private Connection connection;
+    private final HikariDataSource dataSource;
 
     public DaoVectorSqlite(String dbPath, String extPath) {
         this.dbPath = dbPath;
         this.extPath = extPath;
 
-        SQLiteConfig config = new SQLiteConfig();
-        config.enableLoadExtension(true);
-        config.setJournalMode(SQLiteConfig.JournalMode.WAL);
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:sqlite:" + dbPath);
+        config.setDriverClassName("org.sqlite.JDBC");
+        config.setMaximumPoolSize(10);
+        config.setConnectionTimeout(30000L);
+        config.setIdleTimeout(600000L);
+        config.setMaxLifetime(1800000L);
+        config.addDataSourceProperty("journal_mode", "WAL");
+        config.addDataSourceProperty("enable_load_extension", "true");
+
+        this.dataSource = new HikariDataSource(config);
 
         try {
-            this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath, config.toProperties());
             configExt();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            ILog.e(TAG, "Failed to configure database");
         }
     }
 
     public void configExt() throws SQLException {
         ILog.d(TAG, "onConfigure: dbPath=" + dbPath + ", extPath=" + extPath);
-        this.connection.createStatement().execute("PRAGMA enable_load_extension = 1;");
-        this.connection.createStatement().execute("SELECT load_extension('" + extPath + "');");
+        this.dataSource.getConnection().createStatement().execute("SELECT load_extension('" + extPath + "');");
     }
 
     public void initDao(Class[] classes) {
