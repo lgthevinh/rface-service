@@ -55,4 +55,19 @@ public class RFaceService extends Service {
 
         ILog.d("RFaceService", "Service initialized with DAO and file storage.");
     }
+
+    public void start() {
+        new Thread(() -> {
+            ILog.d("RFaceService", "Service started.");
+            // Service main loop or logic can be implemented here
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(1000); // Placeholder for actual work
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            ILog.d("RFaceService", "Service stopping.");
+        }).start();
+    }
 }

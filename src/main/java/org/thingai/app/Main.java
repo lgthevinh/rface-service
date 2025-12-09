@@ -13,5 +13,6 @@ public class Main {
         ILog.logLevel = ILog.DEBUG;
 
         service.init();
+        service.start();
     }
 }
