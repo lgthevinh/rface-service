@@ -37,18 +37,6 @@ public class DaoVectorSqlite extends DaoSqlite {
         config.setConnectionInitSql("SELECT load_extension('" + this.extPath + "');");
 
         this.dataSource = new HikariDataSource(config);
-
-        try {
-            configExt();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            ILog.e(TAG, "Failed to configure database");
-        }
-    }
-
-    public void configExt() throws SQLException {
-        ILog.d(TAG, "onConfigure: dbPath=" + dbPath + ", extPath=" + extPath);
-        this.dataSource.getConnection().createStatement().execute("SELECT load_extension('" + extPath + "');");
     }
 
     @Override
