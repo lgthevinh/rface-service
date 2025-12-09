@@ -47,18 +47,11 @@ public class RFaceService extends Service {
         daoVector.initDao(new Class[]{
                 FaceEmbedding.class
         });
+        daoVector.initVectorSearch(FaceEmbedding.class, "embedding", 128, DistanceMetric.DEFAULT);
 
         dao.initDao(new Class[]{
              FaceIdentity.class
         });
-
-        // Test insertion of a FaceEmbedding
-        // FaceEmbedding testEmbedding = new FaceEmbedding();
-        // testEmbedding.setId("test");
-        // testEmbedding.setEmbedding(new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f});
-        // daoVector.insertOrUpdate(testEmbedding);
-
-        daoVector.initVectorSearch(FaceEmbedding.class, "embedding", 128, DistanceMetric.DEFAULT);
 
         ILog.d("RFaceService", "Service initialized with DAO and file storage.");
     }

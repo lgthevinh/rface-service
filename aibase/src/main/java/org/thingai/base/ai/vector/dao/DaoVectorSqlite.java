@@ -22,7 +22,9 @@ public class DaoVectorSqlite extends DaoSqlite {
     public DaoVectorSqlite(String dbPath, String extPath) {
         super(dbPath);
         this.dbPath = dbPath;
-        this.extPath = extPath;
+
+        // Convert extPath characters if necessary (e.g., for Windows paths)
+        this.extPath = extPath.replace("\\", "/");
 
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:sqlite:" + dbPath);
@@ -31,8 +33,8 @@ public class DaoVectorSqlite extends DaoSqlite {
         config.setConnectionTimeout(30000L);
         config.setIdleTimeout(600000L);
         config.setMaxLifetime(1800000L);
-        config.addDataSourceProperty("journal_mode", "WAL");
         config.addDataSourceProperty("enable_load_extension", "true");
+        config.setConnectionInitSql("SELECT load_extension('" + this.extPath + "');");
 
         this.dataSource = new HikariDataSource(config);
 
@@ -77,6 +79,7 @@ public class DaoVectorSqlite extends DaoSqlite {
 
         query = query + (columns) + ") VALUES (" + (placeholders) + ");";
         try (Connection connection = this.dataSource.getConnection()) {
+            connection.createStatement().execute("SELECT load_extension('" + extPath + "');");
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             int index = 1;
 
