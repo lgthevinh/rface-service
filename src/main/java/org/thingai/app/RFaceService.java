@@ -2,6 +2,8 @@ package org.thingai.app;
 
 import org.thingai.app.rface.enitity.FaceEmbedding;
 import org.thingai.app.rface.enitity.FaceIdentity;
+import org.thingai.app.rface.event.EventFaceRecognized;
+import org.thingai.app.rface.event.EventFrameCaptured;
 import org.thingai.app.rface.handler.EventHandler;
 import org.thingai.app.rface.handler.RecognitionHandler;
 import org.thingai.app.rface.handler.StreamingHandler;
@@ -11,6 +13,7 @@ import org.thingai.base.ai.vector.define.DistanceMetric;
 import org.thingai.base.dao.Dao;
 import org.thingai.base.dao.DaoFile;
 import org.thingai.base.dao.DaoSqlite;
+import org.thingai.base.eda.EventBus;
 import org.thingai.base.log.ILog;
 
 import java.nio.file.Paths;
@@ -24,15 +27,19 @@ public class RFaceService extends Service {
     private RecognitionHandler recognitionHandler;
     private EventHandler eventHandler;
 
+    private EventBus eventBus;
+
     public RFaceService() {
         super();
     }
 
     @Override
     protected void onServiceInit() {
+        // Initialize DAOs
         dao = new DaoSqlite(appDir + "/rface.db");
         daoFile = new DaoFile(appDir + "/files");
 
+        // Detect OS and architecture for loading appropriate vector library
         String osName = System.getProperty("os.name").toLowerCase();
         String arch = System.getProperty("os.arch").toLowerCase();
         String extPath = "";
@@ -54,6 +61,8 @@ public class RFaceService extends Service {
             ILog.w("RFaceService", "Unsupported operating system: " + osName);
             throw new UnsupportedOperationException("Unsupported OS: " + osName);
         }
+
+        // Initialize vector DAO and set up tables
         daoVector = new DaoVectorSqlite(appDir + "/rface.db", extPath);
         daoVector.initDao(new Class[]{
                 FaceEmbedding.class
@@ -66,9 +75,23 @@ public class RFaceService extends Service {
 
         ILog.d("RFaceService", "Service initialized with DAO and file storage.");
 
+        // Initialize EventBus and Handlers
+        eventBus = new EventBus();
         eventHandler = new EventHandler();
         recognitionHandler = new RecognitionHandler();
         streamingHandler = new StreamingHandler();
+
+        // Register handlers with the event bus
+        eventBus.register(EventFrameCaptured.class, eventFrameCaptured -> {
+
+        });
+
+        eventBus.register(EventFaceRecognized.class, eventFaceRecognized -> {
+
+        });
+
+        streamingHandler.setEventBus(eventBus);
+
     }
 
     public void start() {
