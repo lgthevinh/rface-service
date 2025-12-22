@@ -44,6 +44,7 @@ public class RFaceService extends Service {
         String arch = System.getProperty("os.arch").toLowerCase();
         String extPath = "";
         ILog.d("RFaceService", "Operating System: " + osName, ", Architecture: " + arch);
+        ILog.d("RFaceService", "Application Directory: " + appDir);
 
         if (osName.contains("win")) {
             ILog.d("RFaceService", "Running on Windows OS.");
@@ -52,7 +53,7 @@ public class RFaceService extends Service {
             ILog.d("RFaceService", "Running on Linux/Unix OS.");
             if (arch.contains("arm") || arch.contains("aarch64")) {
                 ILog.d("RFaceService", "Detected ARM architecture.");
-                extPath = Paths.get("extlibs").toAbsolutePath() + "/vector-linux-arm/vector.so";
+                extPath = appDir + "/plugin/vector";
             }
         } else if (osName.contains("mac")) {
             ILog.d("RFaceService", "Running on macOS.");
