@@ -1,8 +1,9 @@
 package org.thingai.app;
 
 import org.thingai.app.rface.define.RFVcodecType;
-import org.thingai.app.rface.enitity.RFFaceEmbedding;
-import org.thingai.app.rface.enitity.RFFaceIdentity;
+import org.thingai.app.rface.entity.RFFaceEmbedding;
+import org.thingai.app.rface.entity.RFFaceIdentity;
+import org.thingai.app.rface.entity.RFKeyValue;
 import org.thingai.app.rface.event.RFEventFaceRecognized;
 import org.thingai.app.rface.event.RFEventFrameCaptured;
 import org.thingai.app.rface.handler.RFEventHandler;
@@ -72,28 +73,37 @@ public class RFaceService extends Service {
         daoVector.initVectorSearch(RFFaceEmbedding.class, "embedding", 128, DistanceMetric.DEFAULT);
 
         dao.initDao(new Class[]{
-             RFFaceIdentity.class
+                RFFaceIdentity.class,
+                RFKeyValue.class
         });
 
         ILog.d("RFaceService", "Service initialized with DAO and file storage.");
 
-        // Initialize EventBus and Handlers
-        eventBus = new EventBus();
-        eventHandler = new RFEventHandler();
-        recognitionHandler = new RFRecognitionHandler();
-        streamingHandler = new RFStreamingHandler(RFVcodecType.MJPEG);
-        streamingHandler.setRtspUrl("rtsp://{your_local_rtsp_urL}/live");
+        try {
+            RFKeyValue kvCurrentRtspUrl;
+            kvCurrentRtspUrl = dao.query(RFKeyValue.class, "key", "current_rtsp_url")[0];
 
-        // Register handlers with the event bus
-        eventBus.register(RFEventFrameCaptured.class, eventFrameCaptured -> {
+            // Initialize EventBus and Handlers
+            eventBus = new EventBus();
+            eventHandler = new RFEventHandler();
+            recognitionHandler = new RFRecognitionHandler();
+            streamingHandler = new RFStreamingHandler(RFVcodecType.MJPEG);
+            streamingHandler.setRtspUrl(kvCurrentRtspUrl.getValue());
 
-        });
+            // Register handlers with the event bus
+            eventBus.register(RFEventFrameCaptured.class, eventFrameCaptured -> {
 
-        eventBus.register(RFEventFaceRecognized.class, eventFaceRecognized -> {
+            });
 
-        });
+            eventBus.register(RFEventFaceRecognized.class, eventFaceRecognized -> {
 
-        streamingHandler.setEventBus(eventBus);
+            });
+
+            streamingHandler.setEventBus(eventBus);
+        } catch (Exception e) {
+            ILog.e("RFaceService", "Error during service initialization: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
     }
 

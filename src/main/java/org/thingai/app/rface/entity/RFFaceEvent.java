@@ -1,4 +1,4 @@
-package org.thingai.app.rface.enitity;
+package org.thingai.app.rface.entity;
 
 public class RFFaceEvent {
     private String faceId;

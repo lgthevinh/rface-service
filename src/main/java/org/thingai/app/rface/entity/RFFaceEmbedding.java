@@ -1,4 +1,4 @@
-package org.thingai.app.rface.enitity;
+package org.thingai.app.rface.entity;
 
 import org.thingai.base.ai.vector.dao.DaoEmbedding;
 import org.thingai.base.dao.annotations.DaoColumn;
