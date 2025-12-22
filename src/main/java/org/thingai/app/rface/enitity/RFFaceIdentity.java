@@ -4,7 +4,7 @@ import org.thingai.base.dao.annotations.DaoColumn;
 import org.thingai.base.dao.annotations.DaoTable;
 
 @DaoTable(name = "face_identity")
-public class FaceIdentity {
+public class RFFaceIdentity {
     @DaoColumn(name = "id", primaryKey = true)
     private String id;
 

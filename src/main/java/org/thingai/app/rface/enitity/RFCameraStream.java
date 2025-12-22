@@ -4,7 +4,7 @@ import org.thingai.base.dao.annotations.DaoColumn;
 import org.thingai.base.dao.annotations.DaoTable;
 
 @DaoTable(name = "camera_stream")
-public class CameraStream {
+public class RFCameraStream {
     @DaoColumn(name = "id", primaryKey = true)
     private String id;
 

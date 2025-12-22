@@ -1,5 +1,5 @@
 package org.thingai.app.rface.handler;
 
-public class RecognitionHandler {
+public class RFEventHandler {
 
 }

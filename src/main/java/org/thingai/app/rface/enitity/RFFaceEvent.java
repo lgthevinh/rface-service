@@ -1,6 +1,6 @@
 package org.thingai.app.rface.enitity;
 
-public class FaceEvent {
+public class RFFaceEvent {
     private String faceId;
     private String cameraId;
     private long timestamp;
