@@ -16,6 +16,9 @@ public class RFKeyValue {
         this.value = value;
     }
 
+    public RFKeyValue() {
+    }
+
     public String getKey() {
         return key;
     }
