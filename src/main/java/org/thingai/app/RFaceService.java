@@ -1,12 +1,13 @@
 package org.thingai.app;
 
-import org.thingai.app.rface.enitity.FaceEmbedding;
-import org.thingai.app.rface.enitity.FaceIdentity;
-import org.thingai.app.rface.event.EventFaceRecognized;
-import org.thingai.app.rface.event.EventFrameCaptured;
-import org.thingai.app.rface.handler.EventHandler;
-import org.thingai.app.rface.handler.RecognitionHandler;
-import org.thingai.app.rface.handler.StreamingHandler;
+import org.thingai.app.rface.define.RFVcodecType;
+import org.thingai.app.rface.enitity.RFFaceEmbedding;
+import org.thingai.app.rface.enitity.RFFaceIdentity;
+import org.thingai.app.rface.event.RFEventFaceRecognized;
+import org.thingai.app.rface.event.RFEventFrameCaptured;
+import org.thingai.app.rface.handler.RFEventHandler;
+import org.thingai.app.rface.handler.RFRecognitionHandler;
+import org.thingai.app.rface.handler.RFStreamingHandler;
 import org.thingai.base.Service;
 import org.thingai.base.ai.vector.dao.DaoVectorSqlite;
 import org.thingai.base.ai.vector.define.DistanceMetric;
@@ -23,9 +24,9 @@ public class RFaceService extends Service {
     private DaoFile daoFile;
     private DaoVectorSqlite daoVector;
 
-    private StreamingHandler streamingHandler;
-    private RecognitionHandler recognitionHandler;
-    private EventHandler eventHandler;
+    private RFStreamingHandler streamingHandler;
+    private RFRecognitionHandler recognitionHandler;
+    private RFEventHandler eventHandler;
 
     private EventBus eventBus;
 
@@ -66,28 +67,29 @@ public class RFaceService extends Service {
         // Initialize vector DAO and set up tables
         daoVector = new DaoVectorSqlite(appDir + "/rface.db", extPath);
         daoVector.initDao(new Class[]{
-                FaceEmbedding.class
+                RFFaceEmbedding.class
         });
-        daoVector.initVectorSearch(FaceEmbedding.class, "embedding", 128, DistanceMetric.DEFAULT);
+        daoVector.initVectorSearch(RFFaceEmbedding.class, "embedding", 128, DistanceMetric.DEFAULT);
 
         dao.initDao(new Class[]{
-             FaceIdentity.class
+             RFFaceIdentity.class
         });
 
         ILog.d("RFaceService", "Service initialized with DAO and file storage.");
 
         // Initialize EventBus and Handlers
         eventBus = new EventBus();
-        eventHandler = new EventHandler();
-        recognitionHandler = new RecognitionHandler();
-        streamingHandler = new StreamingHandler();
+        eventHandler = new RFEventHandler();
+        recognitionHandler = new RFRecognitionHandler();
+        streamingHandler = new RFStreamingHandler(RFVcodecType.MJPEG);
+        streamingHandler.setRtspUrl("rtsp://{your_local_rtsp_urL}/live");
 
         // Register handlers with the event bus
-        eventBus.register(EventFrameCaptured.class, eventFrameCaptured -> {
+        eventBus.register(RFEventFrameCaptured.class, eventFrameCaptured -> {
 
         });
 
-        eventBus.register(EventFaceRecognized.class, eventFaceRecognized -> {
+        eventBus.register(RFEventFaceRecognized.class, eventFaceRecognized -> {
 
         });
 
@@ -100,15 +102,6 @@ public class RFaceService extends Service {
             ILog.d("RFaceService", "Service started.");
             // Service main loop or logic can be implemented here
             streamingHandler.run();
-
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            ILog.d("RFaceService", "Service stopping.");
         }).start();
     }
 }
