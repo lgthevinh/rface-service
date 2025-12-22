@@ -15,8 +15,9 @@ public class RFStreamingHandler implements Runnable {
     private EventBus eventBus;
     private String rtspUrl; // current system only supports one streaming url
     private Process ffmpegProcess;
-    private RFVcodecType vcodecType;
     private boolean isRunning = true;
+
+    private final RFVcodecType vcodecType;
 
     private static final int SOI_MARKER = 0xFFD8; // Start Of Image
     private static final int EOI_MARKER = 0xFFD9; // End Of Image
@@ -93,8 +94,10 @@ public class RFStreamingHandler implements Runnable {
 
                     // Convert to byte array
                     byte[] jpegBytes = imageBuffer.toByteArray();
-                    ILog.d(TAG, "Captured JPEG frame of size: " + jpegBytes.length + " bytes");
-                    eventBus.post(new RFEventFrameCaptured(jpegBytes, rtspUrl));
+                    int[] dimensions = getJpegDimensions(jpegBytes); // extract height and width from jpegBytes header
+                    ILog.d(TAG, "readStream " + jpegBytes.length + " " + dimensions[0] + " " + dimensions[1]);
+
+                    eventBus.post(new RFEventFrameCaptured(jpegBytes, dimensions, rtspUrl));
                 }
             }
             prevByte = currByte;
@@ -114,5 +117,52 @@ public class RFStreamingHandler implements Runnable {
 
     public void setRtspUrl(String rtspUrl) {
         this.rtspUrl = rtspUrl;
+    }
+
+    private int[] getJpegDimensions(byte[] jpegBytes) {
+        int i = 0;
+        // Check for SOI (Start of Image)
+        if (jpegBytes[i] != (byte) 0xFF || jpegBytes[i + 1] != (byte) 0xD8) {
+            return new int[]{0, 0}; // Not a JPEG
+        }
+        i += 2;
+
+        while (i < jpegBytes.length) {
+            // Find next marker (0xFF followed by a non-0xFF byte)
+            while (i < jpegBytes.length && jpegBytes[i] != (byte) 0xFF) {
+                i++;
+            }
+            while (i < jpegBytes.length && jpegBytes[i] == (byte) 0xFF) {
+                i++;
+            }
+            if (i >= jpegBytes.length) break;
+
+            byte marker = jpegBytes[i];
+            i++; // Move past marker
+
+            // 0xC0 is SOF0 (Start of Frame 0 - Baseline)
+            // 0xC2 is SOF2 (Start of Frame 2 - Progressive)
+            if (marker == (byte) 0xC0 || marker == (byte) 0xC2) {
+                // Structure: [Length (2)] [Precision (1)] [Height (2)] [Width (2)]
+                // Skip Length (2 bytes) and Precision (1 byte) -> Total 3 bytes
+                i += 3;
+
+                // Read Height (Big Endian)
+                int height = ((jpegBytes[i] & 0xFF) << 8) | (jpegBytes[i + 1] & 0xFF);
+
+                // Read Width (Big Endian)
+                int width = ((jpegBytes[i + 2] & 0xFF) << 8) | (jpegBytes[i + 3] & 0xFF);
+
+                return new int[]{width, height};
+            }
+            // Handle other markers (skip their payload)
+            else {
+                // Read length of the segment (2 bytes, Big Endian)
+                int length = ((jpegBytes[i] & 0xFF) << 8) | (jpegBytes[i + 1] & 0xFF);
+                // Length includes the 2 bytes for the length field itself, so we subtract 2 to get payload
+                i += (length - 2) + 2;
+            }
+        }
+        return new int[]{0, 0};
     }
 }
