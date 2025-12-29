@@ -1,5 +1,6 @@
 package org.thingai.app;
 
+import org.thingai.app.rface.core.RFEventBus;
 import org.thingai.app.rface.define.RFVcodecType;
 import org.thingai.app.rface.entity.RFFaceEmbedding;
 import org.thingai.app.rface.entity.RFFaceIdentity;
@@ -15,7 +16,6 @@ import org.thingai.base.ai.vector.define.DistanceMetric;
 import org.thingai.base.dao.Dao;
 import org.thingai.base.dao.DaoFile;
 import org.thingai.base.dao.DaoSqlite;
-import org.thingai.base.eda.EventBus;
 import org.thingai.base.log.ILog;
 
 import java.nio.file.Paths;
@@ -29,7 +29,7 @@ public class RFaceService extends Service {
     private RFRecognitionHandler recognitionHandler;
     private RFEventHandler eventHandler;
 
-    private EventBus eventBus;
+    private RFEventBus eventBus;
 
     public RFaceService() {
         super();
@@ -84,7 +84,7 @@ public class RFaceService extends Service {
             kvCurrentRtspUrl = dao.query(RFKeyValue.class, "key", "current_rtsp_url")[0];
 
             // Initialize EventBus and Handlers
-            eventBus = new EventBus();
+            eventBus = new RFEventBus();
             eventHandler = new RFEventHandler();
             recognitionHandler = new RFRecognitionHandler();
             streamingHandler = new RFStreamingHandler(RFVcodecType.MJPEG);

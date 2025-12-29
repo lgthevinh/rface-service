@@ -1,8 +1,8 @@
 package org.thingai.app.rface.handler;
 
+import org.thingai.app.rface.core.RFEventBus;
 import org.thingai.app.rface.define.RFVcodecType;
 import org.thingai.app.rface.event.RFEventFrameCaptured;
-import org.thingai.base.eda.EventBus;
 import org.thingai.base.log.ILog;
 
 import java.io.BufferedInputStream;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 public class RFStreamingHandler implements Runnable {
     private static final String TAG = "RFStreamingHandler";
-    private EventBus eventBus;
+    private RFEventBus eventBus;
     private String rtspUrl; // current system only supports one streaming url
     private Process ffmpegProcess;
     private boolean isRunning = true;
@@ -111,7 +111,7 @@ public class RFStreamingHandler implements Runnable {
         }
     }
 
-    public void setEventBus(EventBus eventBus) {
+    public void setEventBus(RFEventBus eventBus) {
         this.eventBus = eventBus;
     }
 
