@@ -17,6 +17,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
 
     implementation(files("../libs/applicationbase.jar"))
+    implementation(files("../libs/desktopplatform.jar"))
 }
 
 tasks.test {

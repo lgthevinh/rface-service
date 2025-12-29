@@ -3,7 +3,7 @@ package org.thingai.base.ai.vector.dao;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.thingai.base.ai.vector.define.DistanceMetric;
-import org.thingai.base.dao.DaoSqlite;
+import org.thingai.platform.dao.DaoSqlite;
 import org.thingai.base.dao.annotations.DaoColumn;
 import org.thingai.base.dao.annotations.DaoTable;
 import org.thingai.base.log.ILog;
@@ -11,7 +11,6 @@ import org.thingai.base.log.ILog;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class DaoVectorSqlite extends DaoSqlite {
     private static final String TAG = "DaoVectorSqlite";

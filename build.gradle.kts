@@ -20,9 +20,8 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("com.google.code.gson:gson:2.13.2")
 
-    implementation(fileTree("libs") {
-        include("*.jar")
-    })
+    implementation(files("libs/applicationbase.jar"))
+    implementation(files("libs/desktopplatform.jar"))
     implementation(files("aibase/build/libs/aibase.jar"))
 
 

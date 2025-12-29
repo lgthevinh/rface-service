@@ -14,9 +14,9 @@ import org.thingai.base.Service;
 import org.thingai.base.ai.vector.dao.DaoVectorSqlite;
 import org.thingai.base.ai.vector.define.DistanceMetric;
 import org.thingai.base.dao.Dao;
-import org.thingai.base.dao.DaoFile;
-import org.thingai.base.dao.DaoSqlite;
 import org.thingai.base.log.ILog;
+import org.thingai.platform.dao.DaoFile;
+import org.thingai.platform.dao.DaoSqlite;
 
 import java.nio.file.Paths;
 
