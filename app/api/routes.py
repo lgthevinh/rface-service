@@ -27,8 +27,8 @@ def register_face():
   else:
     image_bytes = base64.b64decode(image_data)
     
-  # with open("test.jpg", "wb") as f:
-  #   f.write(image_bytes)
+  with open("test.jpg", "wb") as f:
+    f.write(image_bytes)
     
   np_arr = np.frombuffer(image_bytes, np.uint8)
   img_array = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)

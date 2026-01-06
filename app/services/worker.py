@@ -36,6 +36,10 @@ class BackgroundWorker:
       return
     
   def _run(self):
+    self.rtsp_stream.start()
+    for interface in self.output_interface:
+      interface.open()
+      
     while self.is_running:
       frame = self.rtsp_stream.get_current_frame()
       if frame is None:
@@ -43,17 +47,15 @@ class BackgroundWorker:
         
       face, result = self.face_recognition.recognize(frame)
       
-      if face is not None:
+      if face:
         print(f"Face recognized: {face.name}")
         for interface in self.output_interface:
           interface.push_verified_result({"face": face.to_dict(), "result": result})
-      
-      if face is None and result == 0:
+      elif result == 0:
         print(f"Face not recognized")
         for interface in self.output_interface:
           interface.push_unverified_result({"result": result})
-              
-      if face is None and result is None:
+      else:
         print("No face detected")
 
   def stop(self):

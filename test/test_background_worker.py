@@ -13,7 +13,7 @@ if __name__ == "__main__":
   data_path = "./data/"
   
   if not os.path.exists(data_path):
-      os.makedirs(data_path)
+    os.makedirs(data_path)
     
   # Check DEEPFACE_HOME environment variable
   if "DEEPFACE_HOME" not in os.environ:

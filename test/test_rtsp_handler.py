@@ -44,8 +44,8 @@ if __name__ == "__main__":
   FaceRecognition().set_threshold(0.06)
   
   # Start recognition in a separate thread
-  rtsp_stream.start()
   threading.Thread(target=recognition_worker, daemon=True).start()
+  threading.Thread(target=write_frame_to_file_worker, daemon=True).start()
   
   print("Press 'q' to quit")
   

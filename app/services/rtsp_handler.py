@@ -52,6 +52,9 @@ class RTSPHandler:
     """Reconnect to the RTSP stream if it disconnects"""
     if self.capture:
       self.capture.release()
+    self._set_capture()
+
+  def _set_capture(self):
     self.capture = cv2.VideoCapture(self.rtsp_url)
     self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
