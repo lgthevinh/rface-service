@@ -13,9 +13,12 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     libboost-all-dev \
+    libopenblas-dev \
+    liblapack-dev \
+    libx11-dev \
+    libgtk-3-dev \
     python3-dev \
-    libgl1 \
-    && apt-get clean
+    && rm -rf /var/lib/apt/lists/*
 
 # Reinstall dlib after adding system dependencies
 RUN pip install dlib
@@ -23,8 +26,8 @@ RUN pip install dlib
 # Set environment variables
 ENV DEEPFACE_HOME=/app/data/.deepface
 
-# Create necessary directories
-RUN mkdir -p /app/data/.deepface/weights
+# Copy DeepFace weights
+COPY data/.deepface/weights /app/data/.deepface/weights
 
 # Expose the Flask app's port
 EXPOSE 2248

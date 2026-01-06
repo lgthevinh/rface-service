@@ -4,7 +4,6 @@ import json
 import serial.tools
 import serial.tools.list_ports
 from services.database_manager import DatabaseManager
-from models.log import Log
 
 class InterfaceManager:
   def __init__(self, name: str):
@@ -56,9 +55,13 @@ class UartInterfaceManager(InterfaceManager):
         print(f"Error sending data via UART: {e}")
         
   def close(self):
-    if self.serial:
-      self.serial.close()
-  
+    try:
+      if self.serial and self.serial.is_open:
+        self.serial.close()
+        print(f"UART connection closed on port {self.port}")
+    except serial.SerialException as e:
+      print(f"Error closing UART connection: {e}")
+      
   def to_dict(self):
     return {
       "type": "uart",
@@ -68,7 +71,7 @@ class UartInterfaceManager(InterfaceManager):
       "timeout": self.timeout
     }
 
-class CustomUartInterface(UartInterfaceManager):
+class CustomUartInterface():
   serPort = serial.Serial()
   serPort.timeout = 1  # Set timeout (optional)
   serPort.bytesize = serial.EIGHTBITS
@@ -93,7 +96,7 @@ class CustomUartInterface(UartInterfaceManager):
       print(e)
       return False
 
-  def getPorts():
+  def getPorts(self):
     # Step 1: Scan available serial ports
     ports = serial.tools.list_ports.comports()
     port_info = []  # Changed to store information about all ports
@@ -123,11 +126,18 @@ class CustomUartInterface(UartInterfaceManager):
 
   def sendNotifyEnable(self, type, id):
     if type == self.TYPE_VERIFIED_HUMAN:
-      size = len(id) + 4
+      
+      # Convert id to a list of hex bytes
+      id_bytes = []
+      while id > 0:
+        id, bytes = divmod(id, 256)
+        id_bytes.append(bytes)
+      
+      size = len(id_bytes) + 4
       frames = [0x72, 0x67, 0x00, 0x00, 0x00, 0x00, 0x01]
       frames[2] = size >> 8
       frames[3] = size & 0xFF
-      frames.extend(id)
+      frames.extend(id_bytes)
       frames.append(0xFF)
       self.sendData(frames)
     elif type == self.TYPE_NONVERIFIED_HUMAN:
@@ -142,11 +152,22 @@ class CustomUartInterface(UartInterfaceManager):
     else:
       print("port not found")
   
+  def close(self):
+    self.serPort.close()
+    print("UART connection closed")
+  
   def push_verified_result(self, result_data):
     self.sendNotifyEnable(self.TYPE_VERIFIED_HUMAN, result_data["face"]["id"])
   
   def push_unverified_result(self, result_data):
     self.sendNotifyEnable(self.TYPE_NONVERIFIED_HUMAN, None)
+    
+  def to_dict(self):
+    return {
+      "type": "cuart",
+      "name": self.name,
+      "timeout": self.serPort.timeout,
+    }
     
 class LogInterfaceManager(InterfaceManager):
   db_manager = DatabaseManager()
@@ -160,3 +181,10 @@ class LogInterfaceManager(InterfaceManager):
     
   def push_unverified_result(self, result_data):
     self.db_manager.store_log(camera_id=self.camera_id, detected_face_id=None)
+  
+  def to_dict(self):
+    return {
+      "type": "log",
+      "name": self.name,
+      "camera_id": self.camera_id
+    }

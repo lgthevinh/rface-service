@@ -9,28 +9,44 @@ class RTSPHandler:
     self.frame = None
     self.running = False
     self.lock = threading.Lock()
-    self.processing_done = False
+    self.thread = None
     
   def start(self):
     """Start the RTSP stream in a background thread"""
-    self.running = True
-    self._set_capture()
-    threading.Thread(target=self._capture_frames, daemon=True).start()
+    try:
+      if self.capture is not None:
+        self.capture.release()
+      self.running = True
+      self.capture = cv2.VideoCapture(self.rtsp_url)
+      self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+      self.thread = threading.Thread(target=self._capture_frames, daemon=True)
+      self.thread.start()
+    except Exception as e:
+      self.running = False
+      print(f"Error starting RTSP stream: {e}")
+      if self.capture is not None:
+        self.capture.release()
+        self.capture = None
+      return
 
   def _capture_frames(self):
     """Continuously capture frames from the RTSP stream"""
     while self.running:
-      ret, frame = self.capture.read()
-      
-      if not ret:
-        self._reconnect()
-        time.sleep(1) # Wait for 1 second before trying to reconnect
-        continue
-      
-      with self.lock:
-        self.frame = frame
+      try: 
+        ret, frame = self.capture.read()
         
-      time.sleep(0.1)
+        if not ret:
+          self._reconnect()
+          time.sleep(1) # Wait for 1 second before trying to reconnect
+          continue
+        
+        with self.lock:
+          self.frame = frame
+      except Exception as e:
+        print(f"Error capturing frame: {e}")
+        self._reconnect()
+        time.sleep(1)
+        continue
 
   def _reconnect(self):
     """Reconnect to the RTSP stream if it disconnects"""
@@ -41,9 +57,6 @@ class RTSPHandler:
   def _set_capture(self):
     self.capture = cv2.VideoCapture(self.rtsp_url)
     self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-    self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-    self.capture.set(cv2.CAP_PROP_FPS, 10)  # Reduce FPS for low-power devices
 
   def get_current_frame(self):
     """Retrieve the latest frame"""
@@ -52,6 +65,10 @@ class RTSPHandler:
 
   def stop(self):
     """Stop the RTSP stream"""
-    self.running = False
-    if self.capture:
-      self.capture.release()
+    with self.lock:
+      self.running = False
+      if self.capture:
+        self.capture.release()
+      if self.thread is not None:
+        self.thread.join(timeout=5.0)
+        self.thread = None

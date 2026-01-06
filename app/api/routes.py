@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.database_manager import DatabaseManager
 from services.face_recognition import FaceRecognition
-from services.interface_manager import UartInterfaceManager
+from services.interface_manager import UartInterfaceManager, CustomUartInterface, LogInterfaceManager
 from services.worker import WorkerManager, BackgroundWorker
 from models.camera import Camera
 import numpy as np
@@ -143,6 +143,16 @@ def workers_handler():
         timeout = interface["timeout"]
         interface_manager = UartInterfaceManager(interface_name, port, baudrate, timeout)
         bg_worker.add_output_interface(interface_manager)
+        
+      if interface["type"] == "cuart":
+        interface_name = interface["name"]
+        interface_manager = CustomUartInterface(interface_name)
+        bg_worker.add_output_interface(interface_manager)
+        
+      if interface["type"] == "log":
+        interface_name = interface["name"]
+        interface_manager = LogInterfaceManager(camera_id=camera_id, name=interface_name)
+        bg_worker.add_output_interface(interface_manager)
 
     try:
       WorkerManager().add_worker(bg_worker)
@@ -192,3 +202,13 @@ def stop_workers():
     return jsonify({"error": f"Worker {worker_name} not found"}), 404
   
   return jsonify({"error": "Worker name is required"}), 400
+
+# Logs
+@api_blueprint.route("/logs", methods=["GET"])
+def logs_handler():
+  if request.method == "GET":
+    
+    logs = db.get_all_logs()
+    return jsonify([log.to_dict() for log in logs]), 200
+  
+  return jsonify({"error": "Method not allowed"}), 405

@@ -7,3 +7,11 @@ class Log:
     
   def __str__(self):
     return f"Log: {self.id}, {self.timestamp}, {self.camera_id}, {self.detected_face_id}"
+  
+  def to_dict(self):
+    return {
+      "id": self.id,
+      "timestamp": self.timestamp,
+      "camera_id": self.camera_id,
+      "detected_face_id": self.detected_face_id
+    }

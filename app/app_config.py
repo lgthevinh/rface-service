@@ -6,6 +6,8 @@ from services.face_recognition import FaceRecognition
 from config import DATAPATH, DATAJSON_PATH
 
 class AppConfig():
+  _instance = None
+  
   def __new___(cls): 
     if cls._instance is None:
       cls._instance = super(AppConfig, cls).__new__(cls)
@@ -21,6 +23,9 @@ class AppConfig():
     if "DEEPFACE_HOME" not in os.environ:
       os.makedirs("./data/.deepface/weights", exist_ok=True)
       os.environ["DEEPFACE_HOME"] = DATAPATH
+    
+    if "OPENCV_FFMPEG_CAPTURE_OPTIONS" not in os.environ:
+      os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "timeout;3000"
     
     if not os.path.exists(DATAJSON_PATH):
       with open(DATAJSON_PATH, 'w') as f:
